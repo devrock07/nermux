@@ -434,14 +434,29 @@ final class TermuxInstaller {
         String reset = "\033[0m";
 
         return blue + "Welcome to Nermux" + reset + "\n\n" +
-            softBlue + "Termux-powered Linux terminal, reworked with a cleaner blue app UI." + reset + "\n\n" +
+            softBlue + "Termux-powered Linux terminal for coding on Android." + reset + "\n\n" +
             "Docs:      README in the Nermux GitHub repo\n" +
             "Donate:    LTC " + TermuxConstants.TERMUX_DONATE_LTC_ADDRESS + "\n" +
             "Upstream:  https://github.com/termux/termux-app\n\n" +
-            "Working with packages:\n\n" +
-            " - Search:   pkg search <query>\n" +
-            " - Install:  pkg install <package>\n" +
-            " - Upgrade:  pkg upgrade\n\n" +
+            "Start clean:\n\n" +
+            " - Update:   pkg update && pkg upgrade\n" +
+            " - Storage:  termux-setup-storage\n" +
+            " - Projects: mkdir -p ~/projects && cd ~/projects\n\n" +
+            "Local development setup:\n\n" +
+            " - Core:     pkg install git openssh nano vim curl wget\n" +
+            " - Node:     pkg install nodejs-lts\n" +
+            " - Python:   pkg install python clang make\n" +
+            " - Web:      pkg install nodejs-lts python\n\n" +
+            "Useful dev commands:\n\n" +
+            " - Clone:    git clone <repo-url>\n" +
+            " - Website:  python -m http.server 8080\n" +
+            " - Node app: npm init -y && npm install\n" +
+            " - Run app:  npm run dev\n" +
+            " - Python:   python -m venv .venv && source .venv/bin/activate\n\n" +
+            "Discord bot quick start:\n\n" +
+            " - JS bot:   npm init -y && npm install discord.js dotenv\n" +
+            " - Py bot:   pip install discord.py python-dotenv\n" +
+            " - Secrets:  keep tokens in .env, never commit them\n\n" +
             "Extra repositories:\n\n" +
             " - Root:     pkg install root-repo\n" +
             " - X11:      pkg install x11-repo\n\n" +
