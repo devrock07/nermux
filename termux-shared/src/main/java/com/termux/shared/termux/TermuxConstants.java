@@ -565,8 +565,11 @@ public final class TermuxConstants {
     public static final String TERMUX_REDDIT_SUBREDDIT_URL = "https://www.reddit.com/r/termux"; // Default: "https://www.reddit.com/r/termux"
 
 
-    /** Termux donate url */
-    public static final String TERMUX_DONATE_URL = TERMUX_SITE_URL + "/donate"; // Default: "https://termux.dev/donate"
+    /** Nermux Litecoin donation address */
+    public static final String TERMUX_DONATE_LTC_ADDRESS = "LcPnFkTa5UTav5Ue3dM6GdLh7LpTm47JZx";
+
+    /** Nermux donate url */
+    public static final String TERMUX_DONATE_URL = "litecoin:" + TERMUX_DONATE_LTC_ADDRESS;
 
 
 

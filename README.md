@@ -1,8 +1,8 @@
 # Nermux
 
-Nermux is an Android terminal and Linux environment forked from [Termux](https://github.com/termux/termux-app).
+Nermux is a Termux-powered Android terminal clone/fork based on [Termux](https://github.com/termux/termux-app).
 
-The goal is to keep the power of Termux while making the app easier and cleaner for normal users: a modern blue UI, session controls, haptics, and a built-in workspace/file editor flow inspired by VS Code.
+The goal is to keep the power of Termux while making the app easier and cleaner for normal users: a modern blue UI, better session controls, haptics, and a built-in workspace/file editor flow inspired by VS Code.
 
 ## Current Status
 
@@ -13,6 +13,7 @@ This fork is in active early development.
 - Sessions now have cleaner cards and close controls.
 - A native **Workspace** screen has been added for browsing, editing, creating, renaming, deleting, and running files.
 - Android's system folder picker can be used to select shared-storage project folders.
+- About, Donate, and startup info now use Nermux copy instead of upstream Termux copy.
 - The Android package id is still `com.termux`.
 
 The package id is intentionally still `com.termux` for now because Termux bootstrap binaries and packages are compiled for:
@@ -36,6 +37,18 @@ Changing the package id to `com.nermux` without rebuilding bootstrap packages wo
 - Open a terminal in the current folder
 - Run selected files in a terminal session
 - Android folder picker support for shared-storage projects
+- Nermux about/donate screens
+- Custom Nermux startup message for fresh/default bootstrap installs
+
+## Donate
+
+Nermux is an independent fork project. If you want to support the work, Litecoin donations can be sent to:
+
+```text
+LcPnFkTa5UTav5Ue3dM6GdLh7LpTm47JZx
+```
+
+Keep this address visible in the app and README so GitHub visitors and app users know where to support the fork.
 
 ## Project Layout
 
@@ -113,7 +126,7 @@ If Android reports a signature or shared user incompatibility, uninstall existin
 
 ## Upstream
 
-Nermux is based on Termux. Upstream project:
+Nermux is a clone/fork based on Termux. Upstream projects:
 
 - [termux/termux-app](https://github.com/termux/termux-app)
 - [termux/termux-packages](https://github.com/termux/termux-packages)

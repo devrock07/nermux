@@ -267,9 +267,11 @@
 
 
     <!-- About Preference -->
-    <string name="about_preference_title">About</string>
+    <string name="about_preference_title">About Nermux</string>
+    <string name="about_preference_summary">Termux-powered fork details, runtime notes, and upstream credit</string>
 
     <!-- Donate Preference -->
-    <string name="donate_preference_title">Donate</string>
+    <string name="donate_preference_title">Donate to Nermux</string>
+    <string name="donate_preference_summary">Support the fork with Litecoin</string>
 
 </resources>

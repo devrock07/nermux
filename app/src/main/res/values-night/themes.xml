@@ -4,6 +4,29 @@
      https://material.io/develop/android/theming/dark
     -->
 
+    <style name="Theme.TermuxApp.DayNight.DarkActionBar" parent="Theme.BaseActivity.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/nermux_surface_high</item>
+        <item name="colorPrimaryVariant">@color/nermux_terminal_background</item>
+        <item name="colorPrimaryDark">@color/nermux_surface</item>
+        <item name="colorSecondary">@color/nermux_accent</item>
+        <item name="colorSecondaryVariant">@color/nermux_accent_bright</item>
+        <item name="colorOnPrimary">@color/nermux_text_primary</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurface">@color/nermux_surface</item>
+        <item name="colorOnSurface">@color/nermux_text_primary</item>
+        <item name="android:windowBackground">@color/nermux_terminal_background</item>
+        <item name="android:statusBarColor">@color/nermux_terminal_background</item>
+        <item name="android:navigationBarColor">@color/nermux_terminal_background</item>
+        <item name="android:textColorPrimary">@color/nermux_text_primary</item>
+        <item name="android:textColorSecondary">@color/nermux_text_secondary</item>
+        <item name="android:textColorLink">@color/nermux_accent_bright</item>
+    </style>
+
+    <style name="Theme.TermuxApp.DayNight.NoActionBar" parent="Theme.TermuxApp.DayNight.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <!-- TermuxActivity DayNight NoActionBar theme. -->
     <!-- See https://developer.android.com/training/material/theme.html for how to customize the Material theme. -->
     <!-- NOTE: Cannot use "Light." since it hides the terminal scrollbar on the default black background. -->

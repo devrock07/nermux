@@ -25,9 +25,12 @@ import com.termux.shared.termux.shell.command.environment.TermuxShellEnvironment
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -107,6 +110,7 @@ final class TermuxInstaller {
             if (TermuxFileUtils.isTermuxPrefixDirectoryEmpty()) {
                 Logger.logInfo(LOG_TAG, "The termux prefix directory \"" + TERMUX_PREFIX_DIR_PATH + "\" exists but is empty or only contains specific unimportant files.");
             } else {
+                writeNermuxMotdSafely();
                 whenDone.run();
                 return;
             }
@@ -220,6 +224,7 @@ final class TermuxInstaller {
 
                     // Recreate env file since termux prefix was wiped earlier
                     TermuxShellEnvironment.writeEnvironmentToFile(activity);
+                    writeNermuxMotdSafely();
 
                     activity.runOnUiThread(whenDone);
 
@@ -373,6 +378,75 @@ final class TermuxInstaller {
 
     private static Error ensureDirectoryExists(File directory) {
         return FileUtils.createDirectoryFile(directory.getAbsolutePath());
+    }
+
+    private static void writeNermuxMotdSafely() {
+        try {
+            writeNermuxMotd();
+        } catch (Exception e) {
+            Logger.logStackTraceWithMessage(LOG_TAG, "Failed to write Nermux motd", e);
+        }
+    }
+
+    private static void writeNermuxMotd() throws IOException {
+        File etcDir = new File(TERMUX_PREFIX_DIR, "etc");
+        Error error = ensureDirectoryExists(etcDir);
+        if (error != null) throw new IOException(error.getMessage());
+
+        File motdFile = new File(etcDir, "motd");
+        if (!shouldReplaceMotd(motdFile)) return;
+
+        try (FileOutputStream outStream = new FileOutputStream(motdFile, false)) {
+            outStream.write(getNermuxMotd().getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    private static boolean shouldReplaceMotd(File motdFile) {
+        if (!motdFile.exists()) return true;
+
+        long motdLength = motdFile.length();
+        if (motdLength <= 0 || motdLength > 16384) return false;
+
+        byte[] buffer = new byte[(int) motdLength];
+        try (FileInputStream inStream = new FileInputStream(motdFile)) {
+            int offset = 0;
+            while (offset < buffer.length) {
+                int bytesRead = inStream.read(buffer, offset, buffer.length - offset);
+                if (bytesRead == -1) break;
+                offset += bytesRead;
+            }
+
+            String currentMotd = new String(buffer, 0, offset, StandardCharsets.UTF_8);
+            return currentMotd.contains("Welcome to Termux") ||
+                currentMotd.contains("termux.dev") ||
+                currentMotd.contains("wiki.termux.com") ||
+                currentMotd.contains("termux-change-repo");
+        } catch (IOException e) {
+            Logger.logStackTraceWithMessage(LOG_TAG, "Failed to inspect existing motd", e);
+            return false;
+        }
+    }
+
+    private static String getNermuxMotd() {
+        String blue = "\033[1;38;5;45m";
+        String softBlue = "\033[38;5;75m";
+        String green = "\033[38;5;48m";
+        String reset = "\033[0m";
+
+        return blue + "Welcome to Nermux" + reset + "\n\n" +
+            softBlue + "Termux-powered Linux terminal, reworked with a cleaner blue app UI." + reset + "\n\n" +
+            "Docs:      README in the Nermux GitHub repo\n" +
+            "Donate:    LTC " + TermuxConstants.TERMUX_DONATE_LTC_ADDRESS + "\n" +
+            "Upstream:  https://github.com/termux/termux-app\n\n" +
+            "Working with packages:\n\n" +
+            " - Search:   pkg search <query>\n" +
+            " - Install:  pkg install <package>\n" +
+            " - Upgrade:  pkg upgrade\n\n" +
+            "Extra repositories:\n\n" +
+            " - Root:     pkg install root-repo\n" +
+            " - X11:      pkg install x11-repo\n\n" +
+            "For mirror fixes, run " + green + "termux-change-repo" + reset + ".\n" +
+            "Report issues in your Nermux GitHub repository.\n";
     }
 
     public static byte[] loadZipBytes() {

@@ -3,9 +3,11 @@ package com.termux.app.activities;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -14,7 +16,6 @@ import com.termux.shared.activities.ReportActivity;
 import com.termux.shared.file.FileUtils;
 import com.termux.shared.models.ReportInfo;
 import com.termux.app.models.UserAction;
-import com.termux.shared.interact.ShareUtils;
 import com.termux.shared.android.PackageUtils;
 import com.termux.shared.termux.settings.preferences.TermuxAPIAppSharedPreferences;
 import com.termux.shared.termux.settings.preferences.TermuxFloatAppSharedPreferences;
@@ -27,6 +28,8 @@ import com.termux.shared.activity.media.AppCompatActivityUtils;
 import com.termux.shared.theme.NightMode;
 
 public class SettingsActivity extends AppCompatActivity {
+
+    private static final String UPSTREAM_TERMUX_APP_URL = "https://github.com/termux/termux-app";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +76,15 @@ public class SettingsActivity extends AppCompatActivity {
             }.start();
         }
 
+        @Override
+        public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+
+            int backgroundColor = ContextCompat.getColor(requireContext(), R.color.nermux_terminal_background);
+            view.setBackgroundColor(backgroundColor);
+            getListView().setBackgroundColor(backgroundColor);
+        }
+
         private void configureTermuxAPIPreference(@NonNull Context context) {
             Preference termuxAPIPreference = findPreference("termux_api");
             if (termuxAPIPreference != null) {
@@ -116,12 +128,20 @@ public class SettingsActivity extends AppCompatActivity {
                     new Thread() {
                         @Override
                         public void run() {
-                            String title = "About";
+                            String title = context.getString(R.string.about_preference_title);
 
                             StringBuilder aboutString = new StringBuilder();
+                            aboutString.append("# Nermux\n\n");
+                            aboutString.append("Nermux is an independent Termux-powered clone/fork focused on a cleaner blue UI, smoother session controls, haptics, and a built-in workspace editor/file explorer.\n\n");
+                            aboutString.append("The project keeps the Termux runtime model so existing packages and shell workflows still make sense, while the app experience is being rebuilt for Nermux.\n\n");
+                            aboutString.append("## Runtime note\n\n");
+                            aboutString.append("The Android package id currently remains `com.termux` because the bootstrap packages are compiled for `/data/data/com.termux/files/usr`. A full `com.nermux` migration needs a rebuilt bootstrap/package ecosystem.\n\n");
+                            aboutString.append("## Support Nermux\n\n");
+                            aboutString.append("Litecoin donations help support the fork:\n\n`").append(TermuxConstants.TERMUX_DONATE_LTC_ADDRESS).append("`\n\n");
+                            aboutString.append("## Upstream credit\n\n");
+                            aboutString.append("Nermux is based on Termux. Upstream app source: ").append(UPSTREAM_TERMUX_APP_URL).append("\n\n");
                             aboutString.append(TermuxUtils.getAppInfoMarkdownString(context, TermuxUtils.AppInfoMode.TERMUX_AND_PLUGIN_PACKAGES));
                             aboutString.append("\n\n").append(AndroidUtils.getDeviceInfoMarkdownString(context, true));
-                            aboutString.append("\n\n").append(TermuxUtils.getImportantLinksMarkdownString(context));
 
                             String userActionName = UserAction.ABOUT.getName();
 
@@ -144,22 +164,34 @@ public class SettingsActivity extends AppCompatActivity {
         private void configureDonatePreference(@NonNull Context context) {
             Preference donatePreference = findPreference("donate");
             if (donatePreference != null) {
-                String signingCertificateSHA256Digest = PackageUtils.getSigningCertificateSHA256DigestForPackage(context);
-                if (signingCertificateSHA256Digest != null) {
-                    // If APK is a Google Playstore release, then do not show the donation link
-                    // since Termux isn't exempted from the playstore policy donation links restriction
-                    // Check Fund solicitations: https://pay.google.com/intl/en_in/about/policy/
-                    String apkRelease = TermuxUtils.getAPKRelease(signingCertificateSHA256Digest);
-                    if (apkRelease == null || apkRelease.equals(TermuxConstants.APK_RELEASE_GOOGLE_PLAYSTORE_SIGNING_CERTIFICATE_SHA256_DIGEST)) {
-                        donatePreference.setVisible(false);
-                        return;
-                    } else {
-                        donatePreference.setVisible(true);
-                    }
-                }
+                donatePreference.setVisible(true);
 
                 donatePreference.setOnPreferenceClickListener(preference -> {
-                    ShareUtils.openUrl(context, TermuxConstants.TERMUX_DONATE_URL);
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            String title = context.getString(R.string.donate_preference_title);
+
+                            StringBuilder donateString = new StringBuilder();
+                            donateString.append("# Support Nermux\n\n");
+                            donateString.append("Nermux is a Termux clone/fork with a blue, cleaner app experience and a native workspace editor.\n\n");
+                            donateString.append("Litecoin donation address:\n\n`").append(TermuxConstants.TERMUX_DONATE_LTC_ADDRESS).append("`\n\n");
+                            donateString.append("Thanks for supporting the fork and the work needed to polish the terminal, settings, sessions, and editor flow.\n\n");
+                            donateString.append("## Upstream\n\n");
+                            donateString.append("Nermux is based on Termux and keeps upstream credit intact: ").append(UPSTREAM_TERMUX_APP_URL).append("\n");
+
+                            String userActionName = "donate";
+
+                            ReportInfo reportInfo = new ReportInfo(userActionName,
+                                TermuxConstants.TERMUX_APP.TERMUX_SETTINGS_ACTIVITY_NAME, title);
+                            reportInfo.setReportString(donateString.toString());
+                            reportInfo.setReportSaveFileLabelAndPath(userActionName,
+                                Environment.getExternalStorageDirectory() + "/" +
+                                    FileUtils.sanitizeFileName(TermuxConstants.TERMUX_APP_NAME + "-" + userActionName + ".log", true, true));
+
+                            ReportActivity.startReportActivity(context, reportInfo);
+                        }
+                    }.start();
                     return true;
                 });
             }

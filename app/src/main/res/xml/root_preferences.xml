@@ -37,12 +37,14 @@
     <Preference
         app:key="about"
         app:title="@string/about_preference_title"
+        app:summary="@string/about_preference_summary"
         app:persistent="false"/>
     <!-- app:layout="@layout/preference_markdown_text" -->
 
     <Preference
         app:key="donate"
         app:title="@string/donate_preference_title"
+        app:summary="@string/donate_preference_summary"
         app:persistent="false"
         app:isPreferenceVisible="false"/>
 
