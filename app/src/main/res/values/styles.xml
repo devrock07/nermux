@@ -22,4 +22,37 @@
         <item name="android:minHeight">0dp</item>
     </style>
 
+    <style name="TextAppearance.Widget.BaseToolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">@color/nermux_text_primary</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Widget.BaseToolbar.Subtitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+        <item name="android:textColor">@color/nermux_text_secondary</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="NermuxPreferenceTheme">
+        <item name="preferenceStyle">@style/NermuxPreference</item>
+        <item name="preferenceCategoryStyle">@style/NermuxPreferenceCategory</item>
+        <item name="preferenceScreenStyle">@style/NermuxPreference</item>
+        <item name="dialogPreferenceStyle">@style/NermuxPreference</item>
+        <item name="switchPreferenceCompatStyle">@style/NermuxSwitchPreference</item>
+    </style>
+
+    <style name="NermuxPreference">
+        <item name="layout">@layout/nermux_preference_item</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+
+    <style name="NermuxSwitchPreference" parent="@style/NermuxPreference">
+        <item name="widgetLayout">@layout/preference_widget_switch_compat</item>
+    </style>
+
+    <style name="NermuxPreferenceCategory">
+        <item name="layout">@layout/nermux_preference_category</item>
+        <item name="iconSpaceReserved">false</item>
+    </style>
+
 </resources>

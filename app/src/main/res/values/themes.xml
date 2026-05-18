@@ -21,6 +21,7 @@
         <item name="android:textColorPrimary">@color/nermux_text_primary</item>
         <item name="android:textColorSecondary">@color/nermux_text_secondary</item>
         <item name="android:textColorLink">@color/nermux_accent_bright</item>
+        <item name="preferenceTheme">@style/NermuxPreferenceTheme</item>
     </style>
     <!-- TermuxApp Light NoActionBar theme. -->
     <style name="Theme.TermuxApp.Light.NoActionBar" parent="Theme.TermuxApp.Light.DarkActionBar">

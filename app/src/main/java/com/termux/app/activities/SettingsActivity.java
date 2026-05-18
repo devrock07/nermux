@@ -3,15 +3,14 @@ package com.termux.app.activities;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
 
 import com.termux.R;
+import com.termux.app.fragments.settings.NermuxPreferenceFragment;
 import com.termux.shared.activities.ReportActivity;
 import com.termux.shared.file.FileUtils;
 import com.termux.shared.models.ReportInfo;
@@ -37,6 +36,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         AppCompatActivityUtils.setNightMode(this, NightMode.getAppNightMode().getName(), true);
 
+        int systemBarColor = ContextCompat.getColor(this, R.color.nermux_terminal_background);
+        getWindow().setStatusBarColor(systemBarColor);
+        getWindow().setNavigationBarColor(systemBarColor);
+
         setContentView(R.layout.activity_settings);
         if (savedInstanceState == null) {
             getSupportFragmentManager()
@@ -55,7 +58,7 @@ public class SettingsActivity extends AppCompatActivity {
         return true;
     }
 
-    public static class RootPreferencesFragment extends PreferenceFragmentCompat {
+    public static class RootPreferencesFragment extends NermuxPreferenceFragment {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             Context context = getContext();
@@ -63,26 +66,12 @@ public class SettingsActivity extends AppCompatActivity {
 
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
 
-            new Thread() {
-                @Override
-                public void run() {
-                    configureTermuxAPIPreference(context);
-                    configureTermuxFloatPreference(context);
-                    configureTermuxTaskerPreference(context);
-                    configureTermuxWidgetPreference(context);
-                    configureAboutPreference(context);
-                    configureDonatePreference(context);
-                }
-            }.start();
-        }
-
-        @Override
-        public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-            super.onViewCreated(view, savedInstanceState);
-
-            int backgroundColor = ContextCompat.getColor(requireContext(), R.color.nermux_terminal_background);
-            view.setBackgroundColor(backgroundColor);
-            getListView().setBackgroundColor(backgroundColor);
+            configureTermuxAPIPreference(context);
+            configureTermuxFloatPreference(context);
+            configureTermuxTaskerPreference(context);
+            configureTermuxWidgetPreference(context);
+            configureAboutPreference(context);
+            configureDonatePreference(context);
         }
 
         private void configureTermuxAPIPreference(@NonNull Context context) {

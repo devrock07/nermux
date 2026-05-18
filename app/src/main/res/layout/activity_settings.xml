@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/nermux_terminal_background"
+    android:background="@drawable/nermux_settings_screen_background"
     android:orientation="vertical">
 
     <include
@@ -13,6 +13,6 @@
         android:id="@+id/settings"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/nermux_terminal_background" />
+        android:background="@drawable/nermux_settings_screen_background" />
 
 </LinearLayout>
