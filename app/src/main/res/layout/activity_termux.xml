@@ -157,7 +157,7 @@
             android:id="@+id/terminal_toolbar_view_pager"
             android:visibility="gone"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
+            android:layout_height="48dp"
             android:background="@drawable/nermux_toolbar_background"
             android:layout_alignParentBottom="true" />
 

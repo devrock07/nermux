@@ -65,8 +65,8 @@
         <!-- Extra keys colors. -->
         <item name="extraKeysButtonTextColor">@color/nermux_text_primary</item>
         <item name="extraKeysButtonActiveTextColor">@color/nermux_accent_bright</item>
-        <item name="extraKeysButtonBackgroundColor">@color/nermux_glass</item>
-        <item name="extraKeysButtonActiveBackgroundColor">@color/nermux_surface_pressed</item>
+        <item name="extraKeysButtonBackgroundColor">@color/nermux_extra_key_surface</item>
+        <item name="extraKeysButtonActiveBackgroundColor">@color/nermux_extra_key_surface_active</item>
     </style>
 
 </resources>
