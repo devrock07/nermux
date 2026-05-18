@@ -31,12 +31,15 @@ Changing the package id to `com.nermux` without rebuilding bootstrap packages wo
 - Blue Nermux UI theme
 - Haptic feedback on common controls
 - Session drawer with close buttons
+- Pin/unpin session protection from the session long-press menu
 - Built-in workspace/file explorer
 - Quick text editor for small text files
 - Create, rename, and delete files/folders
 - Open a terminal in the current folder
 - Run selected files in a terminal session
 - Android folder picker support for shared-storage projects
+- Power Center for dev stacks, SSH profiles, port checks, backups, exports, and wake-lock controls
+- Safer paste guard for multi-line or risky clipboard commands
 - Nermux about/donate screens
 - Custom Nermux startup message for fresh/default bootstrap installs
 

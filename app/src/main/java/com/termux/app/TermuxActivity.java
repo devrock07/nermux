@@ -42,6 +42,7 @@ import com.termux.shared.termux.TermuxConstants;
 import com.termux.shared.termux.TermuxConstants.TERMUX_APP.TERMUX_ACTIVITY;
 import com.termux.app.activities.HelpActivity;
 import com.termux.app.activities.NermuxWorkspaceActivity;
+import com.termux.app.activities.NermuxPowerActivity;
 import com.termux.app.activities.SettingsActivity;
 import com.termux.shared.termux.crash.TermuxCrashUtils;
 import com.termux.shared.termux.settings.preferences.TermuxAppSharedPreferences;
@@ -250,6 +251,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         setSettingsButtonView();
 
         setWorkspaceButtonView();
+
+        setPowerCenterButtonView();
 
         setNewSessionButtonView();
 
@@ -582,6 +585,16 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             TerminalSession currentSession = getCurrentSession();
             String startDirectory = currentSession == null ? null : currentSession.getCwd();
             ActivityUtils.startActivity(this, NermuxWorkspaceActivity.newInstance(this, startDirectory));
+        });
+    }
+
+    private void setPowerCenterButtonView() {
+        ImageButton powerCenterButton = findViewById(R.id.power_center_button);
+        powerCenterButton.setOnClickListener(v -> {
+            performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
+            TerminalSession currentSession = getCurrentSession();
+            String startDirectory = currentSession == null ? null : currentSession.getCwd();
+            ActivityUtils.startActivity(this, NermuxPowerActivity.newInstance(this, startDirectory));
         });
     }
 

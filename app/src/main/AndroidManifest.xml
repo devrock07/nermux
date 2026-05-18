@@ -110,6 +110,13 @@
             android:theme="@style/Theme.TermuxActivity.DayNight.NoActionBar" />
 
         <activity
+            android:name=".app.activities.NermuxPowerActivity"
+            android:exported="false"
+            android:label="@string/title_power_center"
+            android:resizeableActivity="true"
+            android:theme="@style/Theme.TermuxActivity.DayNight.NoActionBar" />
+
+        <activity
             android:name=".shared.activities.ReportActivity"
             android:theme="@style/Theme.MarkdownViewActivity.DayNight"
             android:documentLaunchMode="intoExisting" />

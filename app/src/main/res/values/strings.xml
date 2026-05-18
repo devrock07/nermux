@@ -49,6 +49,8 @@
     <string name="msg_confirm_close_session">This will stop the process in this session.</string>
     <string name="title_workspace">Workspace</string>
     <string name="action_open_workspace">Open workspace</string>
+    <string name="title_power_center">Power Center</string>
+    <string name="action_open_power_center">Open power center</string>
     <string name="action_close_workspace">Close workspace</string>
     <string name="action_close_editor">Close editor</string>
     <string name="action_save_file">Save file</string>
@@ -81,6 +83,9 @@
     <string name="msg_file_saved">Saved</string>
     <string name="msg_folder_opened">Folder opened</string>
     <string name="msg_terminal_started">Terminal opened</string>
+    <string name="msg_power_command_started">Command opened in terminal</string>
+    <string name="title_confirm_paste">Review paste</string>
+    <string name="action_paste_anyway">Paste anyway</string>
     <string name="title_max_terminals_reached">Max terminals reached</string>
     <string name="msg_max_terminals_reached">Close down existing ones before creating new.</string>
 
@@ -88,6 +93,10 @@
     <string name="action_rename_session_confirm">Set</string>
     <string name="title_create_named_session">New named session</string>
     <string name="action_create_named_session_confirm">Create</string>
+    <string name="action_rename_session">Rename session</string>
+    <string name="action_pin_session">Pin session</string>
+    <string name="action_unpin_session">Unpin session</string>
+    <string name="msg_unpin_before_close">Unpin this session before closing it.</string>
 
     <string name="action_toggle_soft_keyboard">Keyboard</string>
 

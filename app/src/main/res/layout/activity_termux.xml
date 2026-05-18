@@ -67,20 +67,31 @@
 
                     <ImageButton
                         android:id="@+id/workspace_button"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:layout_marginEnd="10dp"
-                        android:padding="12dp"
+                        android:padding="11dp"
                         android:src="@drawable/ic_folder"
                         android:background="@drawable/nermux_icon_button_background"
                         android:contentDescription="@string/action_open_workspace"
                         app:tint="@color/nermux_accent_bright" />
 
                     <ImageButton
+                        android:id="@+id/power_center_button"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginEnd="10dp"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_power_tools"
+                        android:background="@drawable/nermux_icon_button_background"
+                        android:contentDescription="@string/action_open_power_center"
+                        app:tint="@color/nermux_accent_bright" />
+
+                    <ImageButton
                         android:id="@+id/settings_button"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:padding="12dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:padding="11dp"
                         android:src="@drawable/ic_settings"
                         android:background="@drawable/nermux_icon_button_background"
                         android:contentDescription="@string/action_open_settings"
