@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="2dp"
+    android:paddingTop="5dp"
+    android:paddingEnd="2dp"
+    android:paddingBottom="5dp">
+
+    <LinearLayout
+        android:id="@+id/workspace_file_row"
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:background="@drawable/session_background_selected"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="8dp">
+
+        <ImageView
+            android:id="@+id/workspace_file_icon"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/nermux_session_badge_background"
+            android:padding="9dp"
+            app:tint="@color/nermux_accent_bright" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/workspace_file_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/nermux_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/workspace_file_meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:textColor="@color/nermux_text_secondary"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/workspace_file_more"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/nermux_icon_button_background"
+            android:contentDescription="@string/action_file_actions"
+            android:focusable="false"
+            android:padding="10dp"
+            android:src="@drawable/ic_more_vert"
+            app:tint="@color/nermux_text_secondary" />
+    </LinearLayout>
+</FrameLayout>

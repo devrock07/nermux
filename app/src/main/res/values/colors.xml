@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="nermux_terminal_background">#050B18</color>
+    <color name="nermux_terminal_foreground">#DCEBFF</color>
+    <color name="nermux_surface">#0B1424</color>
+    <color name="nermux_surface_high">#132946</color>
+    <color name="nermux_surface_pressed">#1C3D66</color>
+    <color name="nermux_glass">#CC0F1D31</color>
+    <color name="nermux_glass_high">#E6172D4D</color>
+    <color name="nermux_outline">#2A5A8A</color>
+    <color name="nermux_outline_soft">#334A6D91</color>
+    <color name="nermux_text_primary">#F4F9FF</color>
+    <color name="nermux_text_secondary">#A9C1DA</color>
+    <color name="nermux_accent">#0A84FF</color>
+    <color name="nermux_accent_bright">#64D2FF</color>
+    <color name="nermux_accent_soft">#263A78B8</color>
+    <color name="nermux_accent_pressed">#330A84FF</color>
+    <color name="nermux_warning">#FF6B80</color>
+</resources>

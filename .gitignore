@@ -1,0 +1,66 @@
+# Local machine configuration
+local.properties
+
+# Gradle and Android build output
+.gradle/
+build/
+**/build/
+**/.gradle/
+.externalNativeBuild/
+.cxx/
+captures/
+
+# Android packaging artifacts
+*.apk
+*.ap_
+*.aab
+*.aar
+*.dex
+*.idsig
+*.so
+*.zip
+
+# Generated bootstrap archives downloaded during builds
+app/src/main/cpp/bootstrap-*.zip
+
+# Signing and secrets
+.signing/
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+*.mobileprovision
+
+# IDE/editor files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+*~
+
+# Logs, reports, and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.orig
+*.rej
+hs_err_pid*
+replay_pid*
+
+# Screenshots and local smoke-test captures
+nermux-*-smoke.png
+*.webm
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db

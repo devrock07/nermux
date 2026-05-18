@@ -1,0 +1,161 @@
+<com.termux.app.terminal.TermuxActivityRootView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_termux_root_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
+
+    <RelativeLayout
+        android:id="@+id/activity_termux_root_relative_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="0dp"
+        android:layout_marginVertical="0dp"
+        android:orientation="vertical">
+
+        <androidx.drawerlayout.widget.DrawerLayout
+            android:id="@+id/drawer_layout"
+            android:layout_width="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_above="@+id/terminal_toolbar_view_pager"
+            android:layout_height="match_parent">
+
+            <com.termux.view.TerminalView
+                android:id="@+id/terminal_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/nermux_terminal_background"
+                android:defaultFocusHighlightEnabled="false"
+                android:focusableInTouchMode="true"
+                android:scrollbarThumbVertical="@drawable/terminal_scroll_shape"
+                android:scrollbars="vertical"
+                tools:ignore="UnusedAttribute" />
+
+            <LinearLayout
+                android:id="@+id/left_drawer"
+                android:layout_width="288dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:choiceMode="singleChoice"
+                android:divider="@android:color/transparent"
+                android:dividerHeight="0dp"
+                android:descendantFocusability="blocksDescendants"
+                android:orientation="vertical"
+                android:paddingTop="10dp"
+                android:background="?attr/termuxActivityDrawerBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="68dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="14dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:includeFontPadding="false"
+                        android:text="@string/application_name"
+                        android:textColor="@color/nermux_text_primary"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/workspace_button"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginEnd="10dp"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_folder"
+                        android:background="@drawable/nermux_icon_button_background"
+                        android:contentDescription="@string/action_open_workspace"
+                        app:tint="@color/nermux_accent_bright" />
+
+                    <ImageButton
+                        android:id="@+id/settings_button"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_settings"
+                        android:background="@drawable/nermux_icon_button_background"
+                        android:contentDescription="@string/action_open_settings"
+                        app:tint="?attr/termuxActivityDrawerImageTint" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@color/nermux_outline" />
+
+                <ListView
+                    android:id="@+id/terminal_sessions_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_gravity="top"
+                    android:layout_weight="1"
+                    android:choiceMode="singleChoice"
+                    android:clipToPadding="false"
+                    android:divider="@android:color/transparent"
+                    android:dividerHeight="0dp"
+                    android:listSelector="@android:color/transparent"
+                    android:longClickable="true" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end|center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="16dp">
+
+                    <ImageButton
+                        android:id="@+id/toggle_keyboard_button"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@drawable/nermux_icon_button_background"
+                        android:contentDescription="@string/action_toggle_soft_keyboard"
+                        android:padding="14dp"
+                        android:src="@drawable/ic_keyboard"
+                        app:tint="@color/nermux_text_primary" />
+
+                    <ImageButton
+                        android:id="@+id/new_session_button"
+                        android:layout_width="52dp"
+                        android:layout_height="52dp"
+                        android:background="@drawable/nermux_primary_icon_button_background"
+                        android:contentDescription="@string/action_new_session"
+                        android:padding="14dp"
+                        android:src="@drawable/ic_add"
+                        app:tint="@color/black" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </androidx.drawerlayout.widget.DrawerLayout>
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/terminal_toolbar_view_pager"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/nermux_toolbar_background"
+            android:layout_alignParentBottom="true" />
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/activity_termux_bottom_space_view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/transparent" />
+
+</com.termux.app.terminal.TermuxActivityRootView>
