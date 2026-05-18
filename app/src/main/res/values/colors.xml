@@ -16,8 +16,8 @@
     <color name="nermux_accent_bright">#64D2FF</color>
     <color name="nermux_accent_soft">#263A78B8</color>
     <color name="nermux_accent_pressed">#330A84FF</color>
-    <color name="nermux_extra_key_surface">#AA10233D</color>
-    <color name="nermux_extra_key_surface_active">#D51E4D78</color>
+    <color name="nermux_extra_key_surface">#30132945</color>
+    <color name="nermux_extra_key_surface_active">#8A0A84FF</color>
     <color name="nermux_power_glass_mid">#B3142A48</color>
     <color name="nermux_power_hairline">#668DDCFF</color>
     <color name="nermux_warning">#FF6B80</color>

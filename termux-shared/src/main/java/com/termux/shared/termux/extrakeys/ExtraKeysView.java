@@ -233,10 +233,10 @@ public final class ExtraKeysView extends GridLayout {
         setLongPressRepeatDelay(DEFAULT_LONG_PRESS_REPEAT_DELAY);
 
         float density = getResources().getDisplayMetrics().density;
-        mButtonCornerRadiusPx = Math.round(12 * density);
+        mButtonCornerRadiusPx = Math.round(8 * density);
         mButtonStrokeWidthPx = Math.max(1, Math.round(1 * density));
-        mButtonMarginHorizontalPx = Math.round(3 * density);
-        mButtonMarginVerticalPx = Math.round(4 * density);
+        mButtonMarginHorizontalPx = Math.max(1, Math.round(1 * density));
+        mButtonMarginVerticalPx = Math.max(1, Math.round(3 * density));
     }
 
 
@@ -416,7 +416,9 @@ public final class ExtraKeysView extends GridLayout {
                 final ExtraKeyButton buttonInfo = buttons[row][col];
 
                 MaterialButton button;
+                SpecialButtonState specialButtonState = null;
                 if (isSpecialButton(buttonInfo)) {
+                    specialButtonState = mSpecialButtons.get(SpecialButton.valueOf(buttonInfo.getKey()));
                     button = createSpecialButton(buttonInfo.getKey(), true);
                     if (button == null) return;
                 } else {
@@ -425,7 +427,7 @@ public final class ExtraKeysView extends GridLayout {
 
                 button.setText(buttonInfo.getDisplay());
                 button.setAllCaps(mButtonTextAllCaps);
-                styleExtraKeyButton(button, false);
+                styleExtraKeyButton(button, specialButtonState != null && specialButtonState.isActive);
                 button.setMinHeight(0);
                 button.setMinWidth(0);
                 button.setMinimumHeight(0);
@@ -449,7 +451,7 @@ public final class ExtraKeysView extends GridLayout {
                                 // Show popup on swipe up
                                 if (mPopupWindow == null && event.getY() < 0) {
                                     stopScheduledExecutors();
-                                    styleExtraKeyButton(button, false);
+                                    styleExtraKeyButtonForCurrentState(buttonInfo, button);
                                     showPopup(view, buttonInfo.getPopup());
                                 }
                                 if (mPopupWindow != null && event.getY() > 0) {
@@ -460,12 +462,12 @@ public final class ExtraKeysView extends GridLayout {
                             return true;
 
                         case MotionEvent.ACTION_CANCEL:
-                            styleExtraKeyButton(button, false);
+                            styleExtraKeyButtonForCurrentState(buttonInfo, button);
                             stopScheduledExecutors();
                             return true;
 
                         case MotionEvent.ACTION_UP:
-                            styleExtraKeyButton(button, false);
+                            styleExtraKeyButtonForCurrentState(buttonInfo, button);
                             stopScheduledExecutors();
                             // If ACTION_UP up was not from a repetitive key or was with a key with a popup button
                             if (mLongPressCount == 0 || mPopupWindow != null) {
@@ -681,24 +683,42 @@ public final class ExtraKeysView extends GridLayout {
         return button;
     }
 
-    private void styleExtraKeyButton(MaterialButton button, boolean active) {
+    private void styleExtraKeyButtonForCurrentState(ExtraKeyButton buttonInfo, MaterialButton button) {
+        boolean active = false;
+        if (isSpecialButton(buttonInfo)) {
+            SpecialButtonState state = mSpecialButtons.get(SpecialButton.valueOf(buttonInfo.getKey()));
+            active = state != null && state.isActive;
+        }
+        styleExtraKeyButton(button, active);
+    }
+
+    void styleExtraKeyButton(MaterialButton button, boolean active) {
         int backgroundColor = active ? mButtonActiveBackgroundColor : mButtonBackgroundColor;
         int textColor = active ? mButtonActiveTextColor : mButtonTextColor;
-        int strokeColor = active ? adjustAlpha(mButtonActiveTextColor, 0.62f) : adjustAlpha(mButtonTextColor, 0.20f);
+        int strokeColor = active ? adjustAlpha(mButtonActiveTextColor, 0.55f) : Color.TRANSPARENT;
 
         button.setTextColor(textColor);
         button.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
         button.setStrokeColor(ColorStateList.valueOf(strokeColor));
-        button.setStrokeWidth(mButtonStrokeWidthPx);
+        button.setStrokeWidth(active ? mButtonStrokeWidthPx : 0);
         button.setCornerRadius(mButtonCornerRadiusPx);
-        button.setRippleColor(ColorStateList.valueOf(adjustAlpha(mButtonActiveTextColor, 0.22f)));
+        button.setRippleColor(ColorStateList.valueOf(adjustAlpha(mButtonActiveTextColor, 0.18f)));
         button.setGravity(android.view.Gravity.CENTER);
-        button.setTextSize(11);
+        button.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        button.setTextSize(10);
         button.setTypeface(Typeface.DEFAULT_BOLD);
+        button.setSingleLine(true);
+        button.setMaxLines(1);
         button.setIncludeFontPadding(false);
+        button.setLetterSpacing(0);
         button.setPadding(0, 0, 0, 0);
         button.setInsetTop(0);
         button.setInsetBottom(0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            button.setStateListAnimator(null);
+            button.setElevation(0);
+            button.setTranslationZ(0);
+        }
     }
 
     private int adjustAlpha(int color, float factor) {

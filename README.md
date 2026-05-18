@@ -138,4 +138,8 @@ Respect upstream licenses and attribution when publishing this fork.
 
 ## License
 
-This project follows the upstream Termux app license. See [LICENSE.md](LICENSE.md).
+Nermux follows the upstream Termux app license: **GPLv3-only** for the app/root project, with documented exceptions for bundled/shared libraries.
+
+Original Termux copyright and attribution remain intact. Nermux-specific changes are distributed under the same GPLv3-only terms where they modify GPL-covered app code.
+
+See [LICENSE.md](LICENSE.md) and [termux-shared/LICENSE.md](termux-shared/LICENSE.md).

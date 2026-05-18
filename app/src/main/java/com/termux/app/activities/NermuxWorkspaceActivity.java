@@ -125,12 +125,8 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         Uri treeUri = data.getData();
         if (treeUri == null) return;
 
-        int flags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        try {
-            getContentResolver().takePersistableUriPermission(treeUri, flags);
-        } catch (Exception ignored) {
-            // Some providers do not allow persisted grants; direct shared-storage paths still work below.
-        }
+        persistUriPermission(treeUri, data.getFlags(), Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        persistUriPermission(treeUri, data.getFlags(), Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
         File selectedFolder = resolveStorageTreeUriToFile(treeUri);
         if (selectedFolder == null || !selectedFolder.isDirectory()) {
@@ -145,6 +141,15 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         loadDirectory(canonicalFolder);
         performHapticFeedback();
         showToast(R.string.msg_folder_opened);
+    }
+
+    private void persistUriPermission(Uri treeUri, int grantedFlags, int permissionFlag) {
+        if ((grantedFlags & permissionFlag) == 0) return;
+        try {
+            getContentResolver().takePersistableUriPermission(treeUri, permissionFlag);
+        } catch (Exception ignored) {
+            // Some providers do not allow persisted grants; direct shared-storage paths still work below.
+        }
     }
 
     @Override

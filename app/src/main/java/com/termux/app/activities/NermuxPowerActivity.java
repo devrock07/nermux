@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.termux.R;
 import com.termux.app.TermuxActivity;
@@ -68,13 +69,13 @@ public class NermuxPowerActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(mStartDirectory)) mStartDirectory = TermuxConstants.TERMUX_HOME_DIR_PATH;
         mPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 
-        getWindow().setStatusBarColor(getColor(R.color.nermux_terminal_background));
-        getWindow().setNavigationBarColor(getColor(R.color.nermux_terminal_background));
+        getWindow().setStatusBarColor(color(R.color.nermux_terminal_background));
+        getWindow().setNavigationBarColor(color(R.color.nermux_terminal_background));
 
         ScrollView scrollView = new ScrollView(this);
         scrollView.setFillViewport(true);
         scrollView.setClipToPadding(false);
-        scrollView.setBackgroundColor(getColor(R.color.nermux_terminal_background));
+        scrollView.setBackgroundColor(color(R.color.nermux_terminal_background));
 
         mContent = new LinearLayout(this);
         mContent.setOrientation(LinearLayout.VERTICAL);
@@ -461,8 +462,8 @@ public class NermuxPowerActivity extends AppCompatActivity {
         input.setHint(hint);
         input.setText(text);
         input.setSingleLine(true);
-        input.setTextColor(getColor(R.color.nermux_text_primary));
-        input.setHintTextColor(getColor(R.color.nermux_text_muted));
+        input.setTextColor(color(R.color.nermux_text_primary));
+        input.setHintTextColor(color(R.color.nermux_text_muted));
         input.setTextSize(15);
         input.setSelectAllOnFocus(false);
         input.setBackgroundResource(R.drawable.nermux_power_input_background);
@@ -522,7 +523,7 @@ public class NermuxPowerActivity extends AppCompatActivity {
         Button button = new Button(this);
         button.setText(text);
         button.setAllCaps(false);
-        button.setTextColor(getColor(R.color.nermux_text_primary));
+        button.setTextColor(color(R.color.nermux_text_primary));
         button.setTextSize(14);
         button.setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
         button.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
@@ -541,7 +542,7 @@ public class NermuxPowerActivity extends AppCompatActivity {
 
     private Button primaryButton(String text) {
         Button button = fullButton(text);
-        button.setTextColor(getColor(android.R.color.black));
+        button.setTextColor(color(android.R.color.black));
         button.setGravity(Gravity.CENTER);
         button.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         button.setMinHeight(dp(54));
@@ -562,10 +563,14 @@ public class NermuxPowerActivity extends AppCompatActivity {
         TextView view = new TextView(this);
         view.setText(text);
         view.setTextSize(sp);
-        view.setTextColor(getColor(colorRes));
+        view.setTextColor(color(colorRes));
         view.setIncludeFontPadding(false);
         if (bold) view.setTypeface(Typeface.DEFAULT_BOLD);
         return view;
+    }
+
+    private int color(int colorRes) {
+        return ContextCompat.getColor(this, colorRes);
     }
 
     private TextView dialogSummary(String value) {

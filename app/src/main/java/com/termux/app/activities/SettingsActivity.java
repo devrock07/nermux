@@ -140,6 +140,8 @@ public class SettingsActivity extends AppCompatActivity {
                             aboutString.append("Litecoin donations help support the fork:\n\n`").append(TermuxConstants.TERMUX_DONATE_LTC_ADDRESS).append("`\n\n");
                             aboutString.append("## Upstream credit\n\n");
                             aboutString.append("Nermux is based on Termux. Upstream app source: ").append(UPSTREAM_TERMUX_APP_URL).append("\n\n");
+                            aboutString.append("## License\n\n");
+                            aboutString.append("Nermux follows the upstream Termux app license: GPLv3-only for the app/root project, with documented exceptions for bundled/shared libraries. Original Termux copyright and attribution remain intact.\n\n");
                             aboutString.append(TermuxUtils.getAppInfoMarkdownString(context, TermuxUtils.AppInfoMode.TERMUX_AND_PLUGIN_PACKAGES));
                             aboutString.append("\n\n").append(AndroidUtils.getDeviceInfoMarkdownString(context, true));
 

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <gradient
+                android:angle="270"
+                android:startColor="#F0132948"
+                android:centerColor="#F009172C"
+                android:endColor="#F0040A16" />
+        </shape>
+    </item>
+
+    <item
+        android:height="1dp"
+        android:gravity="top">
+        <shape>
+            <solid android:color="@color/nermux_power_hairline" />
+        </shape>
+    </item>
+</layer-list>
