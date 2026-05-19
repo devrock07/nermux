@@ -113,6 +113,8 @@ fi
 
 if [[ "$skip_gradle" -eq 0 ]]; then
   step "Gradle lint, tests, and debug build"
+  chmod +x ./gradlew
+
   gradle_tasks=(
     ':app:lintDebug'
     ':app:testDebugUnitTest'

@@ -99,6 +99,7 @@ jobs:
           export TERMUX_PACKAGE_VARIANT="$PACKAGE_VARIANT"
           export TERMUX_SPLIT_APKS_FOR_RELEASE_BUILDS=1
 
+          chmod +x ./gradlew
           ./gradlew --no-daemon :app:lintDebug :app:assembleRelease
 
           for abi in universal arm64-v8a armeabi-v7a x86_64 x86; do
