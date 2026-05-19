@@ -36,7 +36,6 @@ jobs:
       PACKAGE_VARIANT: ${{ inputs.package_variant || 'apt-android-7' }}
       RELEASE_TAG: nermux-latest
       RELEASE_TITLE: Nermux Latest APK
-      NERMUX_RELEASE_STORE_FILE: ${{ runner.temp }}/nermux-release.jks
       NERMUX_RELEASE_KEY_ALIAS: ${{ secrets.NERMUX_RELEASE_KEY_ALIAS }}
       NERMUX_RELEASE_STORE_PASSWORD: ${{ secrets.NERMUX_RELEASE_STORE_PASSWORD }}
       NERMUX_RELEASE_KEY_PASSWORD: ${{ secrets.NERMUX_RELEASE_KEY_PASSWORD }}
@@ -79,8 +78,10 @@ jobs:
             fi
           done
 
-          printf '%s' "$NERMUX_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$NERMUX_RELEASE_STORE_FILE"
-          chmod 600 "$NERMUX_RELEASE_STORE_FILE"
+          keystore_path="$RUNNER_TEMP/nermux-release.jks"
+          printf '%s' "$NERMUX_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$keystore_path"
+          chmod 600 "$keystore_path"
+          echo "NERMUX_RELEASE_STORE_FILE=$keystore_path" >> "$GITHUB_ENV"
 
       - name: Build signed release APKs
         shell: bash
