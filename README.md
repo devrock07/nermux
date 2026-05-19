@@ -112,6 +112,72 @@ The universal debug APK is usually:
 app/build/outputs/apk/debug/nermux-app_apt-android-7-debug_universal.apk
 ```
 
+## Release and Security Checks
+
+Before publishing the repo or APKs, run:
+
+```powershell
+.\scripts\nermux-release-check.ps1
+```
+
+Linux/macOS/GitHub Actions:
+
+```bash
+bash scripts/nermux-release-check.sh
+```
+
+The check blocks common release mistakes: tracked APKs, AABs, signing keys, local SDK paths, bootstrap zips, common secret/token patterns, lint failures, test failures, and broken debug builds. It also prints SHA-256 hashes for built APKs.
+
+For a signed release build, keep the keystore outside the repo and set:
+
+```text
+NERMUX_RELEASE_STORE_FILE
+NERMUX_RELEASE_KEY_ALIAS
+NERMUX_RELEASE_STORE_PASSWORD
+NERMUX_RELEASE_KEY_PASSWORD
+```
+
+Then run:
+
+```powershell
+.\scripts\nermux-release-check.ps1 -Release
+```
+
+See [docs/SECURITY_RELEASE.md](docs/SECURITY_RELEASE.md) before uploading a public APK.
+
+## GitHub APK Downloads
+
+The workflow [publish_latest_apk.yml](.github/workflows/publish_latest_apk.yml) builds signed release APKs automatically whenever changes are pushed to `main` or `master`.
+
+It updates a GitHub Release tagged:
+
+```text
+nermux-latest
+```
+
+That release contains universal, arm64, arm, x86_64, and x86 signed release APKs plus SHA-256 hashes. Most users should download the universal APK.
+
+Repository Actions must allow `GITHUB_TOKEN` write access to contents so the workflow can create the tag, update the release, and upload APK assets.
+
+Add these repository secrets before relying on the workflow:
+
+```text
+NERMUX_RELEASE_KEYSTORE_BASE64
+NERMUX_RELEASE_KEY_ALIAS
+NERMUX_RELEASE_STORE_PASSWORD
+NERMUX_RELEASE_KEY_PASSWORD
+```
+
+Generate `NERMUX_RELEASE_KEYSTORE_BASE64` from your private keystore without committing the keystore:
+
+```bash
+base64 -w 0 nermux-release.jks
+```
+
+The public release manifest removes protected/high-risk permissions that normal users do not need, including all-files access, overlay access, log/dump/secure-settings access, package-usage access, and APK-install permission. Debug builds keep the fuller development permission set.
+
+Play Protect may still warn about sideloaded or uncommon terminal apps. Use a consistent private signing key, publish SHA-256 hashes, keep source visible, and appeal incorrect Play Protect classifications after checking Google's Play Protect guidance.
+
 ## Install Debug APK
 
 ```bash
@@ -126,6 +192,8 @@ If Android reports a signature or shared user incompatibility, uninstall existin
 - Keep `applicationId` as `com.termux` until the bootstrap/package migration is ready.
 - Be careful changing paths under `TermuxConstants`; many runtime paths are tied to the bootstrap.
 - The workspace editor is a lightweight native editor, not a full VS Code engine.
+- Public APKs should be signed with a private release key and published with SHA-256 hashes.
+- Some antivirus scanners may flag terminal/package-manager permissions. Keep source, release notes, permission explanations, and hashes public so users can verify the build.
 
 ## Upstream
 

@@ -8,6 +8,8 @@ page_ref: /docs/apps/nermux/index.html
 
 Welcome to documentation for the [Nermux App].
 
+Start with the release and security checklist before publishing APKs.
+
 ##
 
-[Nermux App]: https://github.com/termux/termux-app
+[Nermux App]: ../../README.md

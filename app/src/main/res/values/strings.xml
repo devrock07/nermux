@@ -132,6 +132,7 @@
     <string name="action_toggle_keep_screen_on">Keep screen on</string>
     <string name="action_open_help">Help</string>
     <string name="action_open_settings">Settings</string>
+    <string name="action_open_nexcloud_partner">Open NexCloud Hostings</string>
 
     <string name="action_report_issue">Report Issue</string>
     <string name="msg_generating_report">Generating Report</string>
@@ -282,5 +283,13 @@
     <!-- Donate Preference -->
     <string name="donate_preference_title">Donate to Nermux</string>
     <string name="donate_preference_summary">Support the fork with Litecoin</string>
+
+    <!-- Partner -->
+    <string name="nexcloud_partner_eyebrow">Partner</string>
+    <string name="nexcloud_partner_title">NexCloud Hostings</string>
+    <string name="nexcloud_partner_headline">High-performance web and bot hosting</string>
+    <string name="nexcloud_partner_server">Web hosting, Discord bot hosting, VPS</string>
+    <string name="nexcloud_partner_summary">Fast, reliable hosting for websites, Discord bots, Lavalink nodes, and VPS with 24/7 support.</string>
+    <string name="nexcloud_partner_url">nexcloud.in</string>
 
 </resources>

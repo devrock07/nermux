@@ -254,6 +254,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         setPowerCenterButtonView();
 
+        setNexCloudPartnerView();
+
         setNewSessionButtonView();
 
         setToggleKeyboardView();
@@ -595,6 +597,15 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             TerminalSession currentSession = getCurrentSession();
             String startDirectory = currentSession == null ? null : currentSession.getCwd();
             ActivityUtils.startActivity(this, NermuxPowerActivity.newInstance(this, startDirectory));
+        });
+    }
+
+    private void setNexCloudPartnerView() {
+        View partnerCard = findViewById(R.id.nexcloud_partner_card);
+        partnerCard.setContentDescription(getString(R.string.action_open_nexcloud_partner));
+        partnerCard.setOnClickListener(v -> {
+            performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
+            ActivityUtils.startActivity(this, new Intent(Intent.ACTION_VIEW, Uri.parse("https://nexcloud.in/")));
         });
     }
 

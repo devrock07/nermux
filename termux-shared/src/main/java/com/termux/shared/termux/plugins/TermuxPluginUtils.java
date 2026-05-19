@@ -39,6 +39,9 @@ import com.termux.shared.termux.TermuxUtils;
 
 public class TermuxPluginUtils {
 
+    private static final int PENDING_INTENT_IMMUTABLE_FLAGS =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
+
     private static final String LOG_TAG = "TermuxPluginUtils";
 
     /**
@@ -380,11 +383,13 @@ public class TermuxPluginUtils {
         // Must ensure result code for PendingIntents and id for notification are unique otherwise will override previous
         int nextNotificationId = TermuxNotificationUtils.getNextNotificationId(termuxPackageContext);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(termuxPackageContext, nextNotificationId, result.contentIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(termuxPackageContext, nextNotificationId, result.contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT | PENDING_INTENT_IMMUTABLE_FLAGS);
 
         PendingIntent deleteIntent = null;
         if (result.deleteIntent != null)
-            deleteIntent = PendingIntent.getBroadcast(termuxPackageContext, nextNotificationId, result.deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            deleteIntent = PendingIntent.getBroadcast(termuxPackageContext, nextNotificationId, result.deleteIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PENDING_INTENT_IMMUTABLE_FLAGS);
 
         // Setup the notification channel if not already set up
         setupPluginCommandErrorsNotificationChannel(termuxPackageContext);

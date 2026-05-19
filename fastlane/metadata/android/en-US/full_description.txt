@@ -1,4 +1,4 @@
-Nermux is a terminal emulator application enhanced with a large set of command line utilities ported to Android OS. It is a fork of Termux, with the same goal of bringing a Linux command line experience to mobile devices with no rooting or other special setup required.
+Nermux is a Termux-powered Android terminal fork focused on a cleaner blue interface, better session controls, haptics, and local development workflows for apps, websites, bots, SSH, and Linux command line tools.
 
 * Enjoy the Bash and Zsh shells.
 * Edit files with nano and vim.
@@ -6,8 +6,10 @@ Nermux is a terminal emulator application enhanced with a large set of command l
 * Compile C/C++ code with clang.
 * Use the Python console as a pocket calculator.
 * Check out projects with Git and Subversion.
+* Browse, edit, rename, create, delete, and run files from the built-in workspace.
+* Use Power Center helpers for SSH profiles, backups, ports, dev stacks, and wake locks.
 * Run text-based games with frotz.
 
 At first start a small base system is being configured. The GNU Bash, Coreutils, Findutils and other core utilities are available out-of-box. Additionally, we provide more than 1000 other packages installable by using the 'pkg' utility which currently is a frontend for the 'apt' package manager. All provided software has been patched and compiled with Android NDK to provide max compatibility with Android OS.
 
-To learn more about application usage tips and tricks, long-press anywhere on the terminal and select the Help menu option to access the Termux Wiki. This resource is also accessible directly in a web browser: https://wiki.termux.com/wiki/Main_Page.
+This fork currently keeps the Android package id as com.termux until the bootstrap and package ecosystem can be rebuilt for a Nermux-specific prefix.

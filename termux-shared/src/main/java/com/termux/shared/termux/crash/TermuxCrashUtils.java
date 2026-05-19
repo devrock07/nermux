@@ -33,6 +33,9 @@ import java.nio.charset.Charset;
 
 public class TermuxCrashUtils implements CrashHandler.CrashHandlerClient {
 
+    private static final int PENDING_INTENT_IMMUTABLE_FLAGS =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0;
+
     public enum TYPE {
         UNCAUGHT_EXCEPTION,
         CAUGHT_EXCEPTION;
@@ -342,11 +345,13 @@ public class TermuxCrashUtils implements CrashHandler.CrashHandlerClient {
         // Must ensure result code for PendingIntents and id for notification are unique otherwise will override previous
         int nextNotificationId = TermuxNotificationUtils.getNextNotificationId(termuxPackageContext);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(termuxPackageContext, nextNotificationId, result.contentIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent contentIntent = PendingIntent.getActivity(termuxPackageContext, nextNotificationId, result.contentIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT | PENDING_INTENT_IMMUTABLE_FLAGS);
 
         PendingIntent deleteIntent = null;
         if (result.deleteIntent != null)
-            deleteIntent = PendingIntent.getBroadcast(termuxPackageContext, nextNotificationId, result.deleteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            deleteIntent = PendingIntent.getBroadcast(termuxPackageContext, nextNotificationId, result.deleteIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PENDING_INTENT_IMMUTABLE_FLAGS);
 
         // Setup the notification channel if not already set up
         setupCrashReportsNotificationChannel(termuxPackageContext);

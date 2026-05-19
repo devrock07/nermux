@@ -1,1 +1,1 @@
-Nermux terminal emulator with a large set of command line utilities
+Blue Android terminal for local dev, SSH, bots, and Linux tools
