@@ -147,7 +147,7 @@ See [docs/SECURITY_RELEASE.md](docs/SECURITY_RELEASE.md) before uploading a publ
 
 ## GitHub APK Downloads
 
-The workflow [publish_latest_apk.yml](.github/workflows/publish_latest_apk.yml) builds signed release APKs automatically whenever changes are pushed to `main` or `master`.
+The workflow [publish_latest_apk.yml](.github/workflows/publish_latest_apk.yml) builds signed release APKs automatically after [release_security.yml](.github/workflows/release_security.yml) passes on `main` or `master`. It can also be started manually from GitHub Actions.
 
 It creates or updates the GitHub Releases page entry tagged:
 
@@ -156,6 +156,8 @@ nermux-latest
 ```
 
 That release is explicitly marked as the latest release and contains universal, arm64, arm, x86_64, and x86 signed release APKs plus SHA-256 hashes. Most users should download the universal APK.
+
+The repo home page will show no release until the publish workflow finishes successfully. If the release does not appear, check the **Publish Latest Signed APK** workflow run and confirm the release signing secrets and Actions write permissions are configured.
 
 After a successful workflow run, users can download the APK from:
 

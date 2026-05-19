@@ -1,10 +1,11 @@
 name: Publish Latest Signed APK
 
 on:
-  push:
-    branches:
-      - master
-      - main
+  workflow_run:
+    workflows:
+      - Release security checks
+    types:
+      - completed
   workflow_dispatch:
     inputs:
       package_variant:
@@ -27,8 +28,11 @@ jobs:
   publish-latest-apk:
     name: Build and publish signed APK
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     env:
       GH_TOKEN: ${{ github.token }}
+      BUILD_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+      BUILD_BRANCH: ${{ github.event.workflow_run.head_branch || github.ref_name }}
       PACKAGE_VARIANT: ${{ inputs.package_variant || 'apt-android-7' }}
       RELEASE_TAG: nermux-latest
       RELEASE_TITLE: Nermux Latest APK
@@ -42,6 +46,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Setup Java 17
         uses: actions/setup-java@v5
@@ -82,7 +87,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          short_sha="${GITHUB_SHA:0:7}"
+          short_sha="${BUILD_SHA:0:7}"
           current_version_name="$(
             grep -m 1 -E '^[[:space:]]+versionName "[^"]+"$' app/build.gradle |
             sed -E 's/^[[:space:]]+versionName "([^"]+)"/\1/'
@@ -132,8 +137,8 @@ jobs:
           cat > release-notes.md <<EOF
           Latest signed Nermux APKs built automatically from GitHub Actions.
 
-          Commit: \`${GITHUB_SHA}\`
-          Branch: \`${GITHUB_REF_NAME}\`
+          Commit: \`${BUILD_SHA}\`
+          Branch: \`${BUILD_BRANCH}\`
           Version: \`${APP_VERSION_NAME}\`
           Package variant: \`${PACKAGE_VARIANT}\`
 
@@ -147,7 +152,7 @@ jobs:
 
           These APKs are release builds signed with the Nermux release key configured in this repository's GitHub Actions secrets.
 
-          This release is updated automatically on every push to \`main\` or \`master\`.
+          This release is updated automatically after \`Release security checks\` passes on \`main\` or \`master\`.
           EOF
 
       - name: Upload workflow artifact
@@ -170,7 +175,7 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -f "$RELEASE_TAG" "$GITHUB_SHA"
+          git tag -f "$RELEASE_TAG" "$BUILD_SHA"
           git push origin "refs/tags/$RELEASE_TAG" --force
 
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
@@ -191,7 +196,7 @@ jobs:
               --title "$RELEASE_TITLE" \
               --notes-file release-notes.md \
               --latest \
-              --target "$GITHUB_SHA"
+              --target "$BUILD_SHA"
           fi
 
           gh release upload "$RELEASE_TAG" \
