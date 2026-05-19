@@ -78,10 +78,68 @@ jobs:
             fi
           done
 
+          clean_secret_value() {
+            local name="$1"
+            local value="$2"
+            local prefix="${name}="
+
+            value="$(printf '%s' "$value" | tr -d '\r\n')"
+            value="$(printf '%s' "$value" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')"
+            value="${value%\"}"
+            value="${value#\"}"
+            value="${value%\'}"
+            value="${value#\'}"
+            value="$(printf '%s' "$value" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')"
+            value="${value#$prefix}"
+            value="$(printf '%s' "$value" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')"
+            value="${value%\"}"
+            value="${value#\"}"
+            value="${value%\'}"
+            value="${value#\'}"
+
+            printf '%s' "$value"
+          }
+
+          release_keystore_base64="$(
+            clean_secret_value NERMUX_RELEASE_KEYSTORE_BASE64 "$NERMUX_RELEASE_KEYSTORE_BASE64" |
+            tr -d '[:space:]'
+          )"
+          release_key_alias="$(
+            clean_secret_value NERMUX_RELEASE_KEY_ALIAS "$NERMUX_RELEASE_KEY_ALIAS"
+          )"
+          release_store_password="$(
+            clean_secret_value NERMUX_RELEASE_STORE_PASSWORD "$NERMUX_RELEASE_STORE_PASSWORD"
+          )"
+          release_key_password="$(
+            clean_secret_value NERMUX_RELEASE_KEY_PASSWORD "$NERMUX_RELEASE_KEY_PASSWORD"
+          )"
+
+          for name in \
+            release_keystore_base64 \
+            release_key_alias \
+            release_store_password \
+            release_key_password; do
+            if [[ -z "${!name:-}" ]]; then
+              echo "GitHub signing secret became empty after whitespace cleanup: $name" >&2
+              exit 1
+            fi
+          done
+
           keystore_path="$RUNNER_TEMP/nermux-release.jks"
-          printf '%s' "$NERMUX_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$keystore_path"
+          printf '%s' "$release_keystore_base64" | base64 --decode > "$keystore_path"
           chmod 600 "$keystore_path"
-          echo "NERMUX_RELEASE_STORE_FILE=$keystore_path" >> "$GITHUB_ENV"
+
+          keytool -list \
+            -keystore "$keystore_path" \
+            -storepass "$release_store_password" \
+            -alias "$release_key_alias" >/dev/null
+
+          {
+            echo "NERMUX_RELEASE_STORE_FILE=$keystore_path"
+            echo "NERMUX_RELEASE_KEY_ALIAS=$release_key_alias"
+            echo "NERMUX_RELEASE_STORE_PASSWORD=$release_store_password"
+            echo "NERMUX_RELEASE_KEY_PASSWORD=$release_key_password"
+          } >> "$GITHUB_ENV"
 
       - name: Build signed release APKs
         shell: bash
