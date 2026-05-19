@@ -31,7 +31,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       PACKAGE_VARIANT: ${{ inputs.package_variant || 'apt-android-7' }}
       RELEASE_TAG: nermux-latest
-      RELEASE_TITLE: Nermux Latest Signed APK
+      RELEASE_TITLE: Nermux Latest APK
       NERMUX_RELEASE_STORE_FILE: ${{ runner.temp }}/nermux-release.jks
       NERMUX_RELEASE_KEY_ALIAS: ${{ secrets.NERMUX_RELEASE_KEY_ALIAS }}
       NERMUX_RELEASE_STORE_PASSWORD: ${{ secrets.NERMUX_RELEASE_STORE_PASSWORD }}
@@ -51,6 +51,10 @@ jobs:
 
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6
+
+      - name: Run lightweight release checks
+        shell: bash
+        run: bash scripts/nermux-release-check.sh --skip-gradle
 
       - name: Decode release keystore
         shell: bash
@@ -142,6 +146,8 @@ jobs:
           \`${APK_BASENAME_PREFIX}_sha256sums.txt\`
 
           These APKs are release builds signed with the Nermux release key configured in this repository's GitHub Actions secrets.
+
+          This release is updated automatically on every push to \`main\` or \`master\`.
           EOF
 
       - name: Upload workflow artifact
@@ -171,7 +177,7 @@ jobs:
             gh release edit "$RELEASE_TAG" \
               --title "$RELEASE_TITLE" \
               --notes-file release-notes.md \
-              --prerelease
+              --latest
 
             existing_assets="$(gh release view "$RELEASE_TAG" --json assets -q '.assets[].name' || true)"
             if [[ -n "$existing_assets" ]]; then
@@ -184,7 +190,7 @@ jobs:
             gh release create "$RELEASE_TAG" \
               --title "$RELEASE_TITLE" \
               --notes-file release-notes.md \
-              --prerelease \
+              --latest \
               --target "$GITHUB_SHA"
           fi
 

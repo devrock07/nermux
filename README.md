@@ -149,13 +149,19 @@ See [docs/SECURITY_RELEASE.md](docs/SECURITY_RELEASE.md) before uploading a publ
 
 The workflow [publish_latest_apk.yml](.github/workflows/publish_latest_apk.yml) builds signed release APKs automatically whenever changes are pushed to `main` or `master`.
 
-It updates a GitHub Release tagged:
+It creates or updates the GitHub Releases page entry tagged:
 
 ```text
 nermux-latest
 ```
 
-That release contains universal, arm64, arm, x86_64, and x86 signed release APKs plus SHA-256 hashes. Most users should download the universal APK.
+That release is explicitly marked as the latest release and contains universal, arm64, arm, x86_64, and x86 signed release APKs plus SHA-256 hashes. Most users should download the universal APK.
+
+After a successful workflow run, users can download the APK from:
+
+```text
+https://github.com/<owner>/<repo>/releases/tag/nermux-latest
+```
 
 Repository Actions must allow `GITHUB_TOKEN` write access to contents so the workflow can create the tag, update the release, and upload APK assets.
 
