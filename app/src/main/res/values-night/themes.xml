@@ -11,7 +11,7 @@
         <item name="colorSecondary">@color/nermux_accent</item>
         <item name="colorSecondaryVariant">@color/nermux_accent_bright</item>
         <item name="colorOnPrimary">@color/nermux_text_primary</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorOnSecondary">@color/nermux_text_primary</item>
         <item name="colorSurface">@color/nermux_surface</item>
         <item name="colorOnSurface">@color/nermux_text_primary</item>
         <item name="android:windowBackground">@color/nermux_terminal_background</item>
@@ -36,7 +36,7 @@
         <item name="colorPrimary">@color/nermux_surface</item>
         <item name="colorPrimaryVariant">@color/nermux_terminal_background</item>
         <item name="colorSecondary">@color/nermux_accent</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorOnSecondary">@color/nermux_text_primary</item>
 
         <item name="android:windowBackground">@color/nermux_terminal_background</item>
         <item name="android:navigationBarColor">@color/nermux_terminal_background</item>

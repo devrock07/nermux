@@ -568,11 +568,20 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
             }
             updateBackgroundColor();
 
-            final Typeface newTypeface = (fontFile.exists() && fontFile.length() > 0) ? Typeface.createFromFile(fontFile) : Typeface.MONOSPACE;
+            final Typeface newTypeface = getTerminalTypeface(fontFile);
             mActivity.getTerminalView().setTypeface(newTypeface);
         } catch (Exception e) {
             Logger.logStackTraceWithMessage(LOG_TAG, "Error in checkForFontAndColors()", e);
         }
+    }
+
+    private Typeface getTerminalTypeface(File fontFile) {
+        if (fontFile.isFile() && fontFile.length() > 0) {
+            return Typeface.createFromFile(fontFile);
+        }
+
+        Typeface typeface = Typeface.create("sans-serif-monospace", Typeface.NORMAL);
+        return typeface == null ? Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL) : typeface;
     }
 
     public void updateBackgroundColor() {

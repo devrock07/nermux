@@ -47,6 +47,7 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
         }
 
         View sessionRow = sessionRowView.findViewById(R.id.session_row);
+        View selectionRail = sessionRowView.findViewById(R.id.session_selection_rail);
         TextView sessionIndexView = sessionRowView.findViewById(R.id.session_index);
         TextView sessionNameView = sessionRowView.findViewById(R.id.session_name);
         TextView sessionSubtitleView = sessionRowView.findViewById(R.id.session_subtitle);
@@ -59,6 +60,7 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
             sessionNameView.setText("Unavailable session");
             sessionSubtitleView.setText("");
             sessionRow.setActivated(false);
+            selectionRail.setActivated(false);
             closeSessionButton.setEnabled(false);
             return sessionRowView;
         }
@@ -67,6 +69,7 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
         boolean isPinnedSession = mPinnedSessions.contains(sessionAtRow);
         sessionRowView.setActivated(isCurrentSession);
         sessionRow.setActivated(isCurrentSession);
+        selectionRail.setActivated(isCurrentSession);
         sessionIndexView.setActivated(isCurrentSession);
 
         String name = sessionAtRow.mSessionName;

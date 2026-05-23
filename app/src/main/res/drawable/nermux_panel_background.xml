@@ -3,5 +3,5 @@
     <solid android:color="@color/nermux_surface_deep" />
     <stroke
         android:width="1dp"
-        android:color="@color/nermux_outline_strong" />
+        android:color="@color/nermux_outline" />
 </shape>

@@ -17,6 +17,8 @@ import com.termux.shared.termux.file.TermuxFileUtils;
 import com.termux.shared.interact.MessageDialogUtils;
 import com.termux.shared.logger.Logger;
 import com.termux.shared.markdown.MarkdownUtils;
+import com.termux.shared.shell.command.ExecutionCommand;
+import com.termux.shared.shell.command.runner.app.AppShell;
 import com.termux.shared.errors.Error;
 import com.termux.shared.android.PackageUtils;
 import com.termux.shared.termux.TermuxConstants;
@@ -63,6 +65,10 @@ import static com.termux.shared.termux.TermuxConstants.TERMUX_STAGING_PREFIX_DIR
 final class TermuxInstaller {
 
     private static final String LOG_TAG = "TermuxInstaller";
+    private static final String TERMUX_BOOTSTRAP_SECOND_STAGE_SCRIPT_PATH =
+        TERMUX_PREFIX_DIR_PATH + "/etc/termux/termux-bootstrap/second-stage/termux-bootstrap-second-stage.sh";
+    private static final String TERMUX_BOOTSTRAP_SECOND_STAGE_FALLBACK_SCRIPT_PATH =
+        TERMUX_PREFIX_DIR_PATH + "/etc/profile.d/01-termux-bootstrap-second-stage-fallback.sh";
 
     /** Performs bootstrap setup if necessary. */
     static void setupBootstrapIfNeeded(final Activity activity, final Runnable whenDone) {
@@ -224,6 +230,8 @@ final class TermuxInstaller {
 
                     // Recreate env file since termux prefix was wiped earlier
                     TermuxShellEnvironment.writeEnvironmentToFile(activity);
+                    runBootstrapSecondStage(activity);
+                    removeBootstrapSecondStageFallbackScriptSafely();
                     writeNermuxMotdSafely();
 
                     activity.runOnUiThread(whenDone);
@@ -380,6 +388,62 @@ final class TermuxInstaller {
         return FileUtils.createDirectoryFile(directory.getAbsolutePath());
     }
 
+    private static void runBootstrapSecondStage(Context context) throws IOException {
+        File bash = new File(TERMUX_PREFIX_DIR, "bin/bash");
+        File secondStageScript = new File(TERMUX_BOOTSTRAP_SECOND_STAGE_SCRIPT_PATH);
+
+        if (!bash.isFile())
+            throw new IOException("Missing bootstrap shell: " + bash.getAbsolutePath());
+        if (!secondStageScript.isFile())
+            throw new IOException("Missing bootstrap second-stage script: " + secondStageScript.getAbsolutePath());
+
+        // The script is extracted without execute permission because the bootstrap is unpacked manually.
+        //noinspection ResultOfMethodCallIgnored
+        secondStageScript.setExecutable(true);
+
+        Logger.logInfo(LOG_TAG, "Running termux bootstrap second stage from app installer.");
+
+        ExecutionCommand executionCommand = new ExecutionCommand(-1,
+            bash.getAbsolutePath(),
+            new String[] { secondStageScript.getAbsolutePath() },
+            null,
+            TERMUX_PREFIX_DIR_PATH,
+            ExecutionCommand.Runner.APP_SHELL.getName(),
+            false);
+        executionCommand.commandLabel = "Termux bootstrap second stage";
+        executionCommand.setShellCommandShellEnvironment = true;
+        executionCommand.backgroundCustomLogLevel = Logger.LOG_LEVEL_NORMAL;
+
+        AppShell appShell = AppShell.execute(context, executionCommand, null,
+            new TermuxShellEnvironment(), null, true);
+
+        if (appShell == null)
+            throw new IOException("Failed to start termux bootstrap second stage.");
+
+        String stdout = executionCommand.resultData.stdout.toString().trim();
+        String stderr = executionCommand.resultData.stderr.toString().trim();
+        if (!stdout.isEmpty())
+            Logger.logInfoExtended(LOG_TAG, "Bootstrap second-stage stdout:\n" + stdout);
+        if (!stderr.isEmpty())
+            Logger.logWarnExtended(LOG_TAG, "Bootstrap second-stage stderr:\n" + stderr);
+
+        Integer exitCode = executionCommand.resultData.exitCode;
+        if (exitCode == null || exitCode != 0) {
+            throw new IOException("Termux bootstrap second stage failed with exit code " + exitCode +
+                "\n\nStdout:\n" + stdout + "\n\nStderr:\n" + stderr);
+        }
+
+        Logger.logInfo(LOG_TAG, "Termux bootstrap second stage completed successfully.");
+    }
+
+    private static void removeBootstrapSecondStageFallbackScriptSafely() {
+        File fallbackScript = new File(TERMUX_BOOTSTRAP_SECOND_STAGE_FALLBACK_SCRIPT_PATH);
+        if (fallbackScript.exists() && !fallbackScript.delete()) {
+            Logger.logWarn(LOG_TAG, "Failed to delete bootstrap second-stage fallback script: " +
+                fallbackScript.getAbsolutePath());
+        }
+    }
+
     private static void writeNermuxMotdSafely() {
         try {
             writeNermuxMotd();
@@ -420,7 +484,15 @@ final class TermuxInstaller {
             return currentMotd.contains("Welcome to Termux") ||
                 currentMotd.contains("termux.dev") ||
                 currentMotd.contains("wiki.termux.com") ||
-                currentMotd.contains("termux-change-repo");
+                currentMotd.contains("Report issues in your Termux GitHub") ||
+                currentMotd.contains("For mirror fixes, run termux-change-repo") ||
+                currentMotd.contains("Welcome to Nermux") ||
+                currentMotd.contains("Nermux is ready") ||
+                currentMotd.contains("DEV SHELL") ||
+                currentMotd.contains("editor dark") ||
+                currentMotd.contains("Bootstrap finished and the shell is live") ||
+                currentMotd.contains("Mirror fix") ||
+                currentMotd.contains("pkg install nodejs-lts");
         } catch (IOException e) {
             Logger.logStackTraceWithMessage(LOG_TAG, "Failed to inspect existing motd", e);
             return false;
@@ -428,40 +500,17 @@ final class TermuxInstaller {
     }
 
     private static String getNermuxMotd() {
-        String blue = "\033[1;38;5;45m";
-        String softBlue = "\033[38;5;75m";
-        String green = "\033[38;5;48m";
+        String blue = "\033[1;38;5;33m";
+        String green = "\033[38;5;79m";
+        String dim = "\033[2;38;5;245m";
+        String bold = "\033[1m";
         String reset = "\033[0m";
 
-        return blue + "Welcome to Nermux" + reset + "\n\n" +
-            softBlue + "Termux-powered Linux terminal for coding on Android." + reset + "\n\n" +
-            "Docs:      README in the Nermux GitHub repo\n" +
-            "Donate:    LTC " + TermuxConstants.TERMUX_DONATE_LTC_ADDRESS + "\n" +
-            "Upstream:  https://github.com/termux/termux-app\n\n" +
-            "Start clean:\n\n" +
-            " - Update:   pkg update && pkg upgrade\n" +
-            " - Storage:  termux-setup-storage\n" +
-            " - Projects: mkdir -p ~/projects && cd ~/projects\n\n" +
-            "Local development setup:\n\n" +
-            " - Core:     pkg install git openssh nano vim curl wget\n" +
-            " - Node:     pkg install nodejs-lts\n" +
-            " - Python:   pkg install python clang make\n" +
-            " - Web:      pkg install nodejs-lts python\n\n" +
-            "Useful dev commands:\n\n" +
-            " - Clone:    git clone <repo-url>\n" +
-            " - Website:  python -m http.server 8080\n" +
-            " - Node app: npm init -y && npm install\n" +
-            " - Run app:  npm run dev\n" +
-            " - Python:   python -m venv .venv && source .venv/bin/activate\n\n" +
-            "Discord bot quick start:\n\n" +
-            " - JS bot:   npm init -y && npm install discord.js dotenv\n" +
-            " - Py bot:   pip install discord.py python-dotenv\n" +
-            " - Secrets:  keep tokens in .env, never commit them\n\n" +
-            "Extra repositories:\n\n" +
-            " - Root:     pkg install root-repo\n" +
-            " - X11:      pkg install x11-repo\n\n" +
-            "For mirror fixes, run " + green + "termux-change-repo" + reset + ".\n" +
-            "Report issues in your Nermux GitHub repository.\n";
+        return blue + "Nermux" + reset + "\n" +
+            dim + "------------------------------" + reset + "\n\n" +
+            bold + "Ready." + reset + " " +
+            dim + "Quickstart is on the Nermux home screen." + reset + "\n" +
+            dim + "Mirror:" + reset + " " + green + "termux-change-repo" + reset + "\n";
     }
 
     public static byte[] loadZipBytes() {

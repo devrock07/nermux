@@ -9,27 +9,28 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="76dp"
+        android:layout_height="58dp"
+        android:background="@color/nermux_surface_deep"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="14dp"
-        android:paddingEnd="14dp">
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
 
         <ImageButton
             android:id="@+id/workspace_close_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/nermux_icon_button_background"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/nermux_compact_button_background"
             android:contentDescription="@string/action_close_workspace"
-            android:padding="13dp"
+            android:padding="11dp"
             android:src="@drawable/ic_close"
             app:tint="@color/nermux_text_primary" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginEnd="12dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="10dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -37,37 +38,38 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:includeFontPadding="false"
-                android:text="@string/title_workspace"
-                android:textColor="@color/nermux_text_primary"
-                android:textSize="22sp"
+                android:text="EXPLORER"
+                android:textColor="@color/nermux_text_secondary"
+                android:textSize="12sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/workspace_path"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="4dp"
                 android:ellipsize="start"
                 android:includeFontPadding="false"
                 android:singleLine="true"
-                android:textColor="@color/nermux_text_secondary"
-                android:textSize="12sp" />
+                android:textColor="@color/nermux_text_muted"
+                android:textSize="11sp" />
         </LinearLayout>
 
         <ImageButton
             android:id="@+id/workspace_terminal_button"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="@drawable/nermux_primary_icon_button_background"
             android:contentDescription="@string/action_terminal_here"
-            android:padding="12dp"
+            android:padding="10dp"
             android:src="@drawable/ic_terminal"
-            app:tint="@color/black" />
+            app:tint="@color/nermux_text_primary" />
     </LinearLayout>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="48dp"
+        android:background="@color/nermux_activity_rail"
         android:fillViewport="false"
         android:overScrollMode="never"
         android:scrollbars="none">
@@ -77,71 +79,71 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp">
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp">
 
             <ImageButton
                 android:id="@+id/workspace_up_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/nermux_icon_button_background"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/nermux_compact_button_background"
                 android:contentDescription="@string/action_go_up"
-                android:padding="13dp"
+                android:padding="10dp"
                 android:src="@drawable/ic_arrow_upward"
                 app:tint="@color/nermux_text_primary" />
 
             <ImageButton
                 android:id="@+id/workspace_home_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/nermux_icon_button_background"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/nermux_compact_button_background"
                 android:contentDescription="@string/action_home"
-                android:padding="13dp"
+                android:padding="10dp"
                 android:src="@drawable/ic_home"
                 app:tint="@color/nermux_text_primary" />
 
             <ImageButton
                 android:id="@+id/workspace_refresh_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/nermux_icon_button_background"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/nermux_compact_button_background"
                 android:contentDescription="@string/action_refresh"
-                android:padding="13dp"
+                android:padding="10dp"
                 android:src="@drawable/ic_refresh"
                 app:tint="@color/nermux_text_primary" />
 
             <ImageButton
                 android:id="@+id/workspace_pick_folder_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="10dp"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_marginEnd="8dp"
                 android:background="@drawable/nermux_primary_icon_button_background"
                 android:contentDescription="@string/action_choose_folder"
-                android:padding="13dp"
+                android:padding="10dp"
                 android:src="@drawable/ic_folder_open"
-                app:tint="@color/black" />
+                app:tint="@color/nermux_text_primary" />
 
             <ImageButton
                 android:id="@+id/workspace_new_file_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_marginEnd="10dp"
-                android:background="@drawable/nermux_icon_button_background"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/nermux_compact_button_background"
                 android:contentDescription="@string/action_new_file"
-                android:padding="13dp"
+                android:padding="10dp"
                 android:src="@drawable/ic_file"
                 app:tint="@color/nermux_accent_bright" />
 
             <ImageButton
                 android:id="@+id/workspace_new_folder_button"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@drawable/nermux_icon_button_background"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:background="@drawable/nermux_compact_button_background"
                 android:contentDescription="@string/action_new_folder"
-                android:padding="13dp"
+                android:padding="10dp"
                 android:src="@drawable/ic_folder"
                 app:tint="@color/nermux_accent_bright" />
         </LinearLayout>
@@ -161,9 +163,10 @@
             android:divider="@android:color/transparent"
             android:dividerHeight="0dp"
             android:listSelector="@android:color/transparent"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="12dp" />
+            android:paddingStart="8dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="10dp" />
 
         <LinearLayout
             android:id="@+id/workspace_editor_container"
@@ -175,19 +178,20 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="50dp"
+                android:background="@color/nermux_surface_deep"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingStart="14dp"
-                android:paddingEnd="14dp">
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp">
 
                 <ImageButton
                     android:id="@+id/workspace_editor_close_button"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/nermux_icon_button_background"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/nermux_compact_button_background"
                     android:contentDescription="@string/action_close_editor"
-                    android:padding="13dp"
+                    android:padding="10dp"
                     android:src="@drawable/ic_close"
                     app:tint="@color/nermux_text_primary" />
 
@@ -195,36 +199,37 @@
                     android:id="@+id/workspace_editor_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="14dp"
-                    android:layout_marginEnd="12dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
                     android:layout_weight="1"
                     android:ellipsize="middle"
                     android:includeFontPadding="false"
                     android:singleLine="true"
                     android:textColor="@color/nermux_text_primary"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <ImageButton
                     android:id="@+id/workspace_save_button"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
                     android:background="@drawable/nermux_primary_icon_button_background"
                     android:contentDescription="@string/action_save_file"
-                    android:padding="12dp"
+                    android:padding="10dp"
                     android:src="@drawable/ic_save"
-                    app:tint="@color/black" />
+                    app:tint="@color/nermux_text_primary" />
             </LinearLayout>
 
             <EditText
                 android:id="@+id/workspace_editor"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="12dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
                 android:layout_weight="1"
-                android:background="@drawable/nermux_text_input_background"
+                android:background="@drawable/nermux_editor_background"
                 android:gravity="top|start"
                 android:importantForAutofill="no"
                 android:inputType="textMultiLine|textNoSuggestions"

@@ -6,6 +6,9 @@ on:
       - Release security checks
     types:
       - completed
+    branches:
+      - main
+      - master
   workflow_dispatch:
     inputs:
       package_variant:
@@ -28,7 +31,7 @@ jobs:
   publish-latest-apk:
     name: Build and publish signed APK
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_repository.full_name == github.repository && (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'master')) }}
     env:
       GH_TOKEN: ${{ github.token }}
       BUILD_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}

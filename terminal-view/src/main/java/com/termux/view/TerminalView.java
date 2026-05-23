@@ -48,6 +48,8 @@ public final class TerminalView extends View {
     /** Log terminal view key and IME events. */
     private static boolean TERMINAL_VIEW_KEY_LOGGING_ENABLED = false;
 
+    private static final int DEFAULT_TERMINAL_BACKGROUND_COLOR = 0xff1e1e1e;
+
     /** The currently displayed terminal session, whose emulator is {@link #mEmulator}. */
     public TerminalSession mTermSession;
     /** Our terminal emulator whose session is {@link #mTermSession}. */
@@ -512,12 +514,14 @@ public final class TerminalView extends View {
      * @param textSize the new font size, in density-independent pixels.
      */
     public void setTextSize(int textSize) {
-        mRenderer = new TerminalRenderer(textSize, mRenderer == null ? Typeface.MONOSPACE : mRenderer.mTypeface);
+        mRenderer = new TerminalRenderer(textSize, mRenderer == null ? Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL) : mRenderer.mTypeface);
         updateSize();
     }
 
     public void setTypeface(Typeface newTypeface) {
-        mRenderer = new TerminalRenderer(mRenderer.mTextSize, newTypeface);
+        if (newTypeface == null) newTypeface = Typeface.create(Typeface.MONOSPACE, Typeface.NORMAL);
+        int textSize = mRenderer == null ? Math.round(12 * getResources().getDisplayMetrics().density) : mRenderer.mTextSize;
+        mRenderer = new TerminalRenderer(textSize, newTypeface);
         updateSize();
         invalidate();
     }
@@ -1000,7 +1004,7 @@ public final class TerminalView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         if (mEmulator == null) {
-            canvas.drawColor(0XFF050B18);
+            canvas.drawColor(DEFAULT_TERMINAL_BACKGROUND_COLOR);
         } else {
             // render the terminal view and highlight any selected text
             int[] sel = mDefaultSelectors;

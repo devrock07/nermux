@@ -695,18 +695,18 @@ public final class ExtraKeysView extends GridLayout {
     void styleExtraKeyButton(MaterialButton button, boolean active) {
         int backgroundColor = active ? mButtonActiveBackgroundColor : mButtonBackgroundColor;
         int textColor = active ? mButtonActiveTextColor : mButtonTextColor;
-        int strokeColor = active ? adjustAlpha(mButtonActiveTextColor, 0.55f) : Color.TRANSPARENT;
+        int strokeColor = active ? adjustAlpha(mButtonActiveTextColor, 0.65f) : adjustAlpha(mButtonTextColor, 0.18f);
 
         button.setTextColor(textColor);
         button.setBackgroundTintList(ColorStateList.valueOf(backgroundColor));
         button.setStrokeColor(ColorStateList.valueOf(strokeColor));
-        button.setStrokeWidth(active ? mButtonStrokeWidthPx : 0);
+        button.setStrokeWidth(mButtonStrokeWidthPx);
         button.setCornerRadius(mButtonCornerRadiusPx);
         button.setRippleColor(ColorStateList.valueOf(adjustAlpha(mButtonActiveTextColor, 0.18f)));
         button.setGravity(android.view.Gravity.CENTER);
         button.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         button.setTextSize(10);
-        button.setTypeface(Typeface.DEFAULT_BOLD);
+        button.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
         button.setSingleLine(true);
         button.setMaxLines(1);
         button.setIncludeFontPadding(false);

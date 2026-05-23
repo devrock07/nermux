@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient
-        android:angle="270"
-        android:startColor="#F0132948"
-        android:centerColor="#F009172C"
-        android:endColor="#F0040A16" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid android:color="@color/nermux_surface_deep" />
+        </shape>
+    </item>
+
+    <item
+        android:height="1dp"
+        android:gravity="top">
+        <shape>
+            <solid android:color="@color/nermux_outline" />
+        </shape>
+    </item>
+
+    <item
+        android:height="1dp"
+        android:gravity="bottom">
+        <shape>
+            <solid android:color="@color/nermux_accent_soft" />
+        </shape>
+    </item>
+</layer-list>

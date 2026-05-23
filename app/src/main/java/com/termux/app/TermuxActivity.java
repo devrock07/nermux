@@ -18,8 +18,10 @@ import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.PathInterpolator;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -42,7 +44,6 @@ import com.termux.shared.termux.TermuxConstants;
 import com.termux.shared.termux.TermuxConstants.TERMUX_APP.TERMUX_ACTIVITY;
 import com.termux.app.activities.HelpActivity;
 import com.termux.app.activities.NermuxWorkspaceActivity;
-import com.termux.app.activities.NermuxPowerActivity;
 import com.termux.app.activities.SettingsActivity;
 import com.termux.shared.termux.crash.TermuxCrashUtils;
 import com.termux.shared.termux.settings.preferences.TermuxAppSharedPreferences;
@@ -65,6 +66,7 @@ import com.termux.view.TerminalViewClient;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
@@ -196,6 +198,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     private static final String ARG_ACTIVITY_RECREATED = "activity_recreated";
 
     private static final String LOG_TAG = "TermuxActivity";
+    private static final long UI_MOTION_SHORT_MS = 150L;
+    private static final long UI_MOTION_MEDIUM_MS = 260L;
+    private static final PathInterpolator UI_MOTION_INTERPOLATOR = new PathInterpolator(0.2f, 0f, 0f, 1f);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -246,6 +251,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         setTermuxTerminalViewAndClients();
 
+        startTerminalEntryMotion();
+
         setTerminalToolbarView(savedInstanceState);
 
         setSettingsButtonView();
@@ -254,11 +261,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         setPowerCenterButtonView();
 
-        setNexCloudPartnerView();
-
         setNewSessionButtonView();
 
         setToggleKeyboardView();
+
+        setDrawerMotion();
 
         registerForContextMenu(mTerminalView);
 
@@ -521,7 +528,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             mTermuxTerminalViewClient, mTermuxTerminalSessionActivityClient);
 
         final ViewPager terminalToolbarViewPager = getTerminalToolbarViewPager();
-        if (mPreferences.shouldShowTerminalToolbar()) terminalToolbarViewPager.setVisibility(View.VISIBLE);
+        if (mPreferences.shouldShowTerminalToolbar()) {
+            terminalToolbarViewPager.setVisibility(View.VISIBLE);
+            terminalToolbarViewPager.setAlpha(1f);
+            terminalToolbarViewPager.setTranslationY(0f);
+        }
 
         ViewGroup.LayoutParams layoutParams = terminalToolbarViewPager.getLayoutParams();
         mTerminalToolbarDefaultHeight = layoutParams.height;
@@ -553,7 +564,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         final boolean showNow = mPreferences.toogleShowTerminalToolbar();
         Logger.showToast(this, (showNow ? getString(R.string.msg_enabling_terminal_toolbar) : getString(R.string.msg_disabling_terminal_toolbar)), true);
-        terminalToolbarViewPager.setVisibility(showNow ? View.VISIBLE : View.GONE);
+        animateTerminalToolbarVisibility(terminalToolbarViewPager, showNow);
         if (showNow && isTerminalToolbarTextInputViewSelected()) {
             // Focus the text input view if just revealed.
             findViewById(R.id.terminal_toolbar_text_input).requestFocus();
@@ -574,6 +585,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private void setSettingsButtonView() {
         ImageButton settingsButton = findViewById(R.id.settings_button);
+        attachPressMotion(settingsButton);
         settingsButton.setOnClickListener(v -> {
             performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
             ActivityUtils.startActivity(this, new Intent(this, SettingsActivity.class));
@@ -582,6 +594,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private void setWorkspaceButtonView() {
         ImageButton workspaceButton = findViewById(R.id.workspace_button);
+        attachPressMotion(workspaceButton);
         workspaceButton.setOnClickListener(v -> {
             performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
             TerminalSession currentSession = getCurrentSession();
@@ -592,25 +605,16 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private void setPowerCenterButtonView() {
         ImageButton powerCenterButton = findViewById(R.id.power_center_button);
+        attachPressMotion(powerCenterButton);
         powerCenterButton.setOnClickListener(v -> {
             performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
-            TerminalSession currentSession = getCurrentSession();
-            String startDirectory = currentSession == null ? null : currentSession.getCwd();
-            ActivityUtils.startActivity(this, NermuxPowerActivity.newInstance(this, startDirectory));
-        });
-    }
-
-    private void setNexCloudPartnerView() {
-        View partnerCard = findViewById(R.id.nexcloud_partner_card);
-        partnerCard.setContentDescription(getString(R.string.action_open_nexcloud_partner));
-        partnerCard.setOnClickListener(v -> {
-            performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
-            ActivityUtils.startActivity(this, new Intent(Intent.ACTION_VIEW, Uri.parse("https://nexcloud.in/")));
+            ActivityUtils.startActivity(this, NermuxHomeActivity.newInstance(this));
         });
     }
 
     private void setNewSessionButtonView() {
         View newSessionButton = findViewById(R.id.new_session_button);
+        attachPressMotion(newSessionButton);
         newSessionButton.setOnClickListener(v -> {
             performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
             mTermuxTerminalSessionActivityClient.addNewSession(false, null);
@@ -626,17 +630,133 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     private void setToggleKeyboardView() {
-        findViewById(R.id.toggle_keyboard_button).setOnClickListener(v -> {
+        View toggleKeyboardButton = findViewById(R.id.toggle_keyboard_button);
+        attachPressMotion(toggleKeyboardButton);
+        toggleKeyboardButton.setOnClickListener(v -> {
             performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
             mTermuxTerminalViewClient.onToggleSoftKeyboardRequest();
             getDrawer().closeDrawers();
         });
 
-        findViewById(R.id.toggle_keyboard_button).setOnLongClickListener(v -> {
+        toggleKeyboardButton.setOnLongClickListener(v -> {
             performUiHaptic(HapticFeedbackConstants.LONG_PRESS);
             toggleTerminalToolbar();
             return true;
         });
+    }
+
+    private void startTerminalEntryMotion() {
+        if (mIsActivityRecreated || mTerminalView == null) return;
+
+        mTerminalView.setAlpha(0f);
+        mTerminalView.setTranslationY(dpToPx(8));
+        mTerminalView.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(UI_MOTION_MEDIUM_MS)
+            .setInterpolator(UI_MOTION_INTERPOLATOR)
+            .start();
+    }
+
+    private void setDrawerMotion() {
+        DrawerLayout drawerLayout = getDrawer();
+        View drawer = findViewById(R.id.left_drawer);
+        if (drawerLayout == null || drawer == null) return;
+
+        drawerLayout.setScrimColor(ContextCompat.getColor(this, R.color.nermux_drawer_scrim));
+        drawer.setAlpha(0.92f);
+        drawer.setTranslationX(-dpToPx(18));
+
+        drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+                if (drawerView != drawer) return;
+                drawer.setAlpha(0.92f + (slideOffset * 0.08f));
+                drawer.setTranslationX(-dpToPx(18) * (1f - slideOffset));
+            }
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+                if (drawerView != drawer) return;
+                drawer.setAlpha(1f);
+                drawer.setTranslationX(0f);
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {
+                if (drawerView != drawer) return;
+                drawer.setAlpha(0.92f);
+                drawer.setTranslationX(-dpToPx(18));
+            }
+        });
+    }
+
+    private void animateTerminalToolbarVisibility(View toolbar, boolean show) {
+        if (toolbar == null) return;
+        toolbar.animate().cancel();
+
+        float travelDistance = Math.max(toolbar.getHeight(), Math.round(mTerminalToolbarDefaultHeight)) * 0.45f;
+        if (travelDistance <= 0) travelDistance = dpToPx(18);
+
+        if (show) {
+            toolbar.setVisibility(View.VISIBLE);
+            toolbar.setAlpha(0f);
+            toolbar.setTranslationY(travelDistance);
+            toolbar.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(UI_MOTION_MEDIUM_MS)
+                .setInterpolator(UI_MOTION_INTERPOLATOR)
+                .start();
+        } else {
+            toolbar.animate()
+                .alpha(0f)
+                .translationY(travelDistance)
+                .setDuration(UI_MOTION_SHORT_MS)
+                .setInterpolator(UI_MOTION_INTERPOLATOR)
+                .withEndAction(() -> {
+                    toolbar.setVisibility(View.GONE);
+                    toolbar.setAlpha(1f);
+                    toolbar.setTranslationY(0f);
+                })
+                .start();
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void attachPressMotion(View view) {
+        if (view == null) return;
+
+        view.setOnTouchListener((target, event) -> {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    target.animate()
+                        .scaleX(0.94f)
+                        .scaleY(0.94f)
+                        .alpha(0.86f)
+                        .setDuration(UI_MOTION_SHORT_MS)
+                        .setInterpolator(UI_MOTION_INTERPOLATOR)
+                        .start();
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    target.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .alpha(1f)
+                        .setDuration(UI_MOTION_SHORT_MS)
+                        .setInterpolator(UI_MOTION_INTERPOLATOR)
+                        .start();
+                    break;
+                default:
+                    break;
+            }
+            return false;
+        });
+    }
+
+    private float dpToPx(float dp) {
+        return dp * getResources().getDisplayMetrics().density;
     }
 
 

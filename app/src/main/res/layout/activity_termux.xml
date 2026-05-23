@@ -36,227 +36,152 @@
 
             <LinearLayout
                 android:id="@+id/left_drawer"
-                android:layout_width="288dp"
+                android:layout_width="304dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
                 android:choiceMode="singleChoice"
                 android:divider="@android:color/transparent"
                 android:dividerHeight="0dp"
                 android:descendantFocusability="blocksDescendants"
-                android:orientation="vertical"
-                android:paddingTop="10dp"
+                android:orientation="horizontal"
                 android:background="?attr/termuxActivityDrawerBackground">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="68dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingStart="18dp"
-                    android:paddingEnd="14dp">
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:includeFontPadding="false"
-                        android:text="@string/application_name"
-                        android:textColor="@color/nermux_text_primary"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
-
-                    <ImageButton
-                        android:id="@+id/workspace_button"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:layout_marginEnd="10dp"
-                        android:padding="11dp"
-                        android:src="@drawable/ic_folder"
-                        android:background="@drawable/nermux_icon_button_background"
-                        android:contentDescription="@string/action_open_workspace"
-                        app:tint="@color/nermux_accent_bright" />
+                    android:layout_width="54dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/nermux_activity_rail_background"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingTop="14dp"
+                    android:paddingBottom="14dp">
 
                     <ImageButton
                         android:id="@+id/power_center_button"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:layout_marginEnd="10dp"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/nermux_primary_icon_button_background"
+                        android:contentDescription="@string/action_open_power_center"
                         android:padding="11dp"
                         android:src="@drawable/ic_power_tools"
-                        android:background="@drawable/nermux_icon_button_background"
-                        android:contentDescription="@string/action_open_power_center"
-                        app:tint="@color/nermux_accent_bright" />
-
-                    <ImageButton
-                        android:id="@+id/settings_button"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:padding="11dp"
-                        android:src="@drawable/ic_settings"
-                        android:background="@drawable/nermux_icon_button_background"
-                        android:contentDescription="@string/action_open_settings"
-                        app:tint="?attr/termuxActivityDrawerImageTint" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:background="@color/nermux_outline" />
-
-                <ListView
-                    android:id="@+id/terminal_sessions_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_gravity="top"
-                    android:layout_weight="1"
-                    android:choiceMode="singleChoice"
-                    android:clipToPadding="false"
-                    android:divider="@android:color/transparent"
-                    android:dividerHeight="0dp"
-                    android:listSelector="@android:color/transparent"
-                    android:longClickable="true" />
-
-                <LinearLayout
-                    android:id="@+id/nexcloud_partner_card"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="10dp"
-                    android:background="@drawable/nermux_partner_card_background"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:minHeight="106dp"
-                    android:orientation="vertical"
-                    android:paddingStart="12dp"
-                    android:paddingTop="10dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="10dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:layout_width="34dp"
-                            android:layout_height="34dp"
-                            android:adjustViewBounds="true"
-                            android:contentDescription="@string/nexcloud_partner_title"
-                            android:scaleType="fitCenter"
-                            android:src="@drawable/nexcloud_logo" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <com.google.android.material.textview.MaterialTextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:includeFontPadding="false"
-                                android:text="@string/nexcloud_partner_eyebrow"
-                                android:textAllCaps="true"
-                                android:textColor="@color/nermux_accent_bright"
-                                android:textSize="9sp"
-                                android:textStyle="bold" />
-
-                            <com.google.android.material.textview.MaterialTextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="3dp"
-                                android:includeFontPadding="false"
-                                android:text="@string/nexcloud_partner_title"
-                                android:textColor="@color/nermux_text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:ellipsize="end"
-                        android:includeFontPadding="false"
-                        android:maxLines="1"
-                        android:text="@string/nexcloud_partner_headline"
-                        android:textColor="@color/nermux_text_primary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:ellipsize="end"
-                        android:includeFontPadding="false"
-                        android:maxLines="1"
-                        android:text="@string/nexcloud_partner_server"
-                        android:textColor="@color/nermux_accent_bright"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:ellipsize="end"
-                        android:includeFontPadding="false"
-                        android:lineSpacingExtra="2dp"
-                        android:maxLines="2"
-                        android:text="@string/nexcloud_partner_summary"
-                        android:textColor="@color/nermux_text_secondary"
-                        android:textSize="11sp" />
-
-                    <com.google.android.material.textview.MaterialTextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
-                        android:includeFontPadding="false"
-                        android:text="@string/nexcloud_partner_url"
-                        android:textColor="@color/nermux_accent_bright"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="end|center_vertical"
-                    android:paddingStart="16dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="16dp">
-
-                    <ImageButton
-                        android:id="@+id/toggle_keyboard_button"
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
-                        android:layout_marginEnd="10dp"
-                        android:background="@drawable/nermux_icon_button_background"
-                        android:contentDescription="@string/action_toggle_soft_keyboard"
-                        android:padding="14dp"
-                        android:src="@drawable/ic_keyboard"
                         app:tint="@color/nermux_text_primary" />
 
                     <ImageButton
+                        android:id="@+id/workspace_button"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/nermux_compact_button_background"
+                        android:contentDescription="@string/action_open_workspace"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_folder"
+                        app:tint="@color/nermux_text_secondary" />
+
+                    <ImageButton
+                        android:id="@+id/settings_button"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/nermux_compact_button_background"
+                        android:contentDescription="@string/action_open_settings"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_settings"
+                        app:tint="@color/nermux_text_secondary" />
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/toggle_keyboard_button"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/nermux_compact_button_background"
+                        android:contentDescription="@string/action_toggle_soft_keyboard"
+                        android:padding="11dp"
+                        android:src="@drawable/ic_keyboard"
+                        app:tint="@color/nermux_text_secondary" />
+
+                    <ImageButton
                         android:id="@+id/new_session_button"
-                        android:layout_width="52dp"
-                        android:layout_height="52dp"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
                         android:background="@drawable/nermux_primary_icon_button_background"
                         android:contentDescription="@string/action_new_session"
-                        android:padding="14dp"
+                        android:padding="11dp"
                         android:src="@drawable/ic_add"
-                        app:tint="@color/black" />
+                        app:tint="@color/nermux_text_primary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@color/nermux_surface_deep"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="12dp">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:text="EXPLORER"
+                            android:textColor="@color/nermux_text_secondary"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:includeFontPadding="false"
+                            android:text="@string/application_name"
+                            android:textColor="@color/nermux_text_muted"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/nermux_outline" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
+                        android:paddingStart="14dp"
+                        android:paddingTop="12dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="7dp"
+                        android:text="@string/title_terminal_sessions"
+                        android:textColor="@color/nermux_text_muted"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <ListView
+                        android:id="@+id/terminal_sessions_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_gravity="top"
+                        android:layout_weight="1"
+                        android:choiceMode="singleChoice"
+                        android:clipToPadding="false"
+                        android:divider="@android:color/transparent"
+                        android:dividerHeight="0dp"
+                        android:listSelector="@android:color/transparent"
+                        android:longClickable="true"
+                        android:paddingStart="8dp"
+                        android:paddingEnd="8dp" />
                 </LinearLayout>
             </LinearLayout>
 

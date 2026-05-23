@@ -7,8 +7,8 @@
                 android:angle="315"
                 android:startColor="@color/nermux_accent"
                 android:centerColor="@color/nermux_accent_bright"
-                android:endColor="#9AE8FF" />
-            <corners android:radius="22dp" />
+                android:endColor="@color/nermux_accent_green" />
+            <corners android:radius="8dp" />
         </shape>
     </item>
 </ripple>

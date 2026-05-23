@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <gradient
-        android:angle="270"
-        android:startColor="#FF0B172A"
-        android:centerColor="#FF07111F"
-        android:endColor="#FF030813" />
+    <solid android:color="@color/nermux_terminal_background" />
 </shape>
