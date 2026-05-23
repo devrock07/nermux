@@ -34,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.airbnb.lottie.LottieAnimationView;
 import com.termux.R;
 import com.termux.shared.shell.command.ExecutionCommand.ShellCreateMode;
 import com.termux.shared.termux.TermuxConstants;
@@ -91,7 +90,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
         });
 
         content.addView(createTitleRow());
-        content.addView(text("Copy-ready commands for a fresh shell.", 14, R.color.nermux_text_secondary, false),
+        content.addView(text("Quickstart commands for a fresh shell.", 14, R.color.nermux_text_secondary, false),
             blockParams(0, 6, 0, 0));
         content.addView(createSearchBox(), blockParams(0, 18, 0, 0));
         content.addView(createHeroCard(), blockParams(0, 16, 0, 0));
@@ -107,9 +106,11 @@ public class NermuxHomeActivity extends AppCompatActivity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setOrientation(LinearLayout.HORIZONTAL);
 
-        TextView heading = title("Quickstart", 34, R.color.nermux_text_primary, true);
-        heading.setGravity(Gravity.CENTER_VERTICAL);
-        row.addView(heading, new LinearLayout.LayoutParams(0, dp(48), 1));
+        ImageView wordmark = new ImageView(this);
+        wordmark.setImageResource(R.drawable.nermux_wordmark);
+        wordmark.setAdjustViewBounds(true);
+        wordmark.setScaleType(ImageView.ScaleType.FIT_START);
+        row.addView(wordmark, new LinearLayout.LayoutParams(0, dp(46), 1));
 
         TextView shell = text("Shell", 14, R.color.nermux_accent_bright, true);
         shell.setGravity(Gravity.CENTER);
@@ -170,12 +171,11 @@ public class NermuxHomeActivity extends AppCompatActivity {
         FrameLayout iconShell = new FrameLayout(this);
         iconShell.setBackground(oval(color(R.color.nermux_accent)));
 
-        LottieAnimationView pulse = new LottieAnimationView(this);
-        pulse.setAnimation(R.raw.nermux_terminal_pulse);
-        pulse.setRepeatCount(-1);
-        pulse.setSpeed(0.92f);
-        pulse.playAnimation();
-        iconShell.addView(pulse, new FrameLayout.LayoutParams(dp(52), dp(52), Gravity.CENTER));
+        ImageView terminal = new ImageView(this);
+        terminal.setImageResource(R.drawable.ic_terminal);
+        terminal.setColorFilter(color(R.color.nermux_text_primary));
+        terminal.setPadding(dp(12), dp(12), dp(12), dp(12));
+        iconShell.addView(terminal, new FrameLayout.LayoutParams(dp(52), dp(52), Gravity.CENTER));
         card.addView(iconShell, new LinearLayout.LayoutParams(dp(54), dp(54)));
 
         LinearLayout copy = new LinearLayout(this);

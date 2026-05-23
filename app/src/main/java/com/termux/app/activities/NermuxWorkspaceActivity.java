@@ -5,10 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,9 +63,12 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
     private String mOriginalEditorText;
 
     private TextView mPathView;
+    private TextView mItemCountView;
     private ListView mFileListView;
     private View mEditorContainer;
     private TextView mEditorTitleView;
+    private TextView mLineNumbersView;
+    private TextView mEditorStatusView;
     private EditText mEditorView;
     private WorkspaceFileAdapter mAdapter;
 
@@ -86,11 +92,45 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
             mAllowedRoots.add(externalStorageDir);
 
         mPathView = findViewById(R.id.workspace_path);
+        mItemCountView = findViewById(R.id.workspace_item_count);
         mFileListView = findViewById(R.id.workspace_file_list);
         mEditorContainer = findViewById(R.id.workspace_editor_container);
         mEditorTitleView = findViewById(R.id.workspace_editor_title);
+        mLineNumbersView = findViewById(R.id.workspace_line_numbers);
+        mEditorStatusView = findViewById(R.id.workspace_editor_status);
         mEditorView = findViewById(R.id.workspace_editor);
         mEditorView.setTypeface(Typeface.MONOSPACE);
+        mEditorView.setHorizontallyScrolling(true);
+        mLineNumbersView.setTypeface(Typeface.MONOSPACE);
+        mEditorStatusView.setTypeface(Typeface.MONOSPACE);
+
+        mEditorView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mEditorView.post(() -> {
+                    updateLineNumbers();
+                    updateEditorStatus();
+                });
+            }
+        });
+        mEditorView.setOnClickListener(v -> mEditorView.post(this::updateEditorStatus));
+        mEditorView.setOnKeyListener((v, keyCode, event) -> {
+            mEditorView.post(this::updateEditorStatus);
+            return false;
+        });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mEditorView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+                mLineNumbersView.setScrollY(scrollY);
+            });
+        }
 
         mAdapter = new WorkspaceFileAdapter();
         mFileListView.setAdapter(mAdapter);
@@ -199,6 +239,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
             entries.addAll(Arrays.asList(files));
             entries.sort(FILE_COMPARATOR);
         }
+        mItemCountView.setText(entries.size() == 1 ? "1 ITEM" : entries.size() + " ITEMS");
         mAdapter.setFiles(entries);
     }
 
@@ -241,7 +282,13 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         mEditorTitleView.setText(file.getName());
         mEditorView.setText(mOriginalEditorText);
         mEditorView.setSelection(0);
+        mEditorContainer.setAlpha(0f);
         mEditorContainer.setVisibility(View.VISIBLE);
+        mEditorContainer.animate().alpha(1f).setDuration(140).start();
+        mEditorView.post(() -> {
+            updateLineNumbers();
+            updateEditorStatus();
+        });
         mEditorView.requestFocus();
 
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -255,6 +302,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         try (FileOutputStream outputStream = new FileOutputStream(mEditingFile, false)) {
             outputStream.write(editorText.getBytes(StandardCharsets.UTF_8));
             mOriginalEditorText = editorText;
+            updateEditorStatus();
             performHapticFeedback();
             showToast(R.string.msg_file_saved);
             loadDirectory(mCurrentDir);
@@ -281,10 +329,15 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
     }
 
     private void closeEditor() {
-        mEditorContainer.setVisibility(View.GONE);
-        mEditingFile = null;
-        mOriginalEditorText = null;
-        mEditorView.setText("");
+        mEditorContainer.animate().alpha(0f).setDuration(120).withEndAction(() -> {
+            mEditorContainer.setVisibility(View.GONE);
+            mEditorContainer.setAlpha(1f);
+            mEditingFile = null;
+            mOriginalEditorText = null;
+            mEditorView.setText("");
+            mLineNumbersView.setText("");
+            mEditorStatusView.setText("");
+        }).start();
     }
 
     private boolean hasEditorChanges() {
@@ -582,9 +635,53 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
     private String formatMeta(File file) {
         String modified = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
             .format(new Date(file.lastModified()));
-        if (file.isDirectory())
-            return getString(R.string.title_workspace) + " - " + modified;
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            int count = children == null ? 0 : children.length;
+            return (count == 1 ? "1 item" : count + " items") + " - " + modified;
+        }
         return formatSize(file.length()) + " - " + modified;
+    }
+
+    private void updateLineNumbers() {
+        if (mLineNumbersView == null || mEditorView == null) return;
+
+        int lineCount = Math.max(1, mEditorView.getLineCount());
+        CharSequence text = mEditorView.getText();
+        if (text != null && text.length() > 0 && text.charAt(text.length() - 1) == '\n')
+            lineCount++;
+
+        StringBuilder builder = new StringBuilder(lineCount * 4);
+        for (int i = 1; i <= lineCount; i++) {
+            if (i > 1) builder.append('\n');
+            builder.append(i);
+        }
+        mLineNumbersView.setText(builder.toString());
+        mLineNumbersView.setScrollY(mEditorView.getScrollY());
+    }
+
+    private void updateEditorStatus() {
+        if (mEditorStatusView == null || mEditorView == null || mEditingFile == null) return;
+
+        CharSequence text = mEditorView.getText();
+        int cursor = Math.max(0, mEditorView.getSelectionStart());
+        int textLength = text == null ? 0 : text.length();
+        cursor = Math.min(cursor, textLength);
+
+        int line = 1;
+        int column = 1;
+        for (int i = 0; i < cursor; i++) {
+            if (text.charAt(i) == '\n') {
+                line++;
+                column = 1;
+            } else {
+                column++;
+            }
+        }
+
+        String state = hasEditorChanges() ? "MODIFIED" : "SAVED";
+        int byteCount = text == null ? 0 : text.toString().getBytes(StandardCharsets.UTF_8).length;
+        mEditorStatusView.setText("Ln " + line + ", Col " + column + "   UTF-8   " + formatSize(byteCount) + "   " + state);
     }
 
     private String formatSize(long size) {

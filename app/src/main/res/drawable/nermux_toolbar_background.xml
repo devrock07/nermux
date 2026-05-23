@@ -13,12 +13,4 @@
             <solid android:color="@color/nermux_outline" />
         </shape>
     </item>
-
-    <item
-        android:height="1dp"
-        android:gravity="bottom">
-        <shape>
-            <solid android:color="@color/nermux_accent_soft" />
-        </shape>
-    </item>
 </layer-list>

@@ -3,16 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="2dp"
-    android:paddingTop="2dp"
-    android:paddingEnd="2dp"
-    android:paddingBottom="2dp">
+    android:paddingStart="0dp"
+    android:paddingTop="1dp"
+    android:paddingEnd="0dp"
+    android:paddingBottom="1dp">
 
     <LinearLayout
         android:id="@+id/workspace_file_row"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:background="@drawable/session_background_selected"
+        android:layout_height="48dp"
+        android:background="@drawable/nermux_file_row_background"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="12dp"
@@ -20,10 +20,10 @@
 
         <ImageView
             android:id="@+id/workspace_file_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@drawable/nermux_session_badge_background"
-            android:padding="7dp"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="@android:color/transparent"
+            android:padding="5dp"
             app:tint="@color/nermux_accent_bright" />
 
         <LinearLayout
@@ -42,26 +42,25 @@
                 android:includeFontPadding="false"
                 android:maxLines="1"
                 android:textColor="@color/nermux_text_primary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textSize="13sp" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/workspace_file_meta"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="3dp"
                 android:ellipsize="end"
                 android:includeFontPadding="false"
                 android:maxLines="1"
-                android:textColor="@color/nermux_text_secondary"
+                android:textColor="@color/nermux_text_muted"
                 android:textSize="10sp" />
         </LinearLayout>
 
         <ImageButton
             android:id="@+id/workspace_file_more"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
-            android:background="@drawable/nermux_icon_button_background"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/nermux_compact_button_background"
             android:contentDescription="@string/action_file_actions"
             android:focusable="false"
             android:padding="9dp"
