@@ -10,7 +10,7 @@
     <LinearLayout
         android:id="@+id/session_row"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="64dp"
         android:background="@drawable/session_background_selected"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -65,6 +65,22 @@
                 android:textColor="@color/nermux_text_secondary"
                 android:textSize="10sp" />
         </LinearLayout>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/session_status"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/nermux_count_pill_background"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:minWidth="42dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:textColor="@color/nermux_accent_green"
+            android:textSize="10sp"
+            android:textStyle="bold" />
 
         <ImageButton
             android:id="@+id/close_session_button"

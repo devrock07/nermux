@@ -51,6 +51,7 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
         TextView sessionIndexView = sessionRowView.findViewById(R.id.session_index);
         TextView sessionNameView = sessionRowView.findViewById(R.id.session_name);
         TextView sessionSubtitleView = sessionRowView.findViewById(R.id.session_subtitle);
+        TextView sessionStatusView = sessionRowView.findViewById(R.id.session_status);
         ImageButton closeSessionButton = sessionRowView.findViewById(R.id.close_session_button);
 
         TermuxSession termuxSession = getItem(position);
@@ -59,6 +60,8 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
             sessionIndexView.setText("--");
             sessionNameView.setText("Unavailable session");
             sessionSubtitleView.setText("");
+            sessionStatusView.setText("OFF");
+            sessionStatusView.setTextColor(ContextCompat.getColor(mActivity, R.color.nermux_text_muted));
             sessionRow.setActivated(false);
             selectionRail.setActivated(false);
             closeSessionButton.setEnabled(false);
@@ -84,6 +87,9 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
         sessionSubtitleView.setText(subtitle);
 
         boolean sessionRunning = sessionAtRow.isRunning();
+        sessionStatusView.setText(sessionRunning ? "RUN" : "EXIT");
+        sessionStatusView.setTextColor(ContextCompat.getColor(mActivity,
+            sessionRunning ? R.color.nermux_accent_green : R.color.nermux_warning));
 
         if (sessionRunning) {
             sessionNameView.setPaintFlags(sessionNameView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);

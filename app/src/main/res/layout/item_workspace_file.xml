@@ -56,6 +56,21 @@
                 android:textSize="10sp" />
         </LinearLayout>
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/workspace_file_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/nermux_count_pill_background"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:minWidth="40dp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:textColor="@color/nermux_accent_bright"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
         <ImageButton
             android:id="@+id/workspace_file_more"
             android:layout_width="32dp"

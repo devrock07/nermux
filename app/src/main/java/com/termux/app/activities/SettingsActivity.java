@@ -1,8 +1,11 @@
 package com.termux.app.activities;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -80,8 +83,53 @@ public class SettingsActivity extends AppCompatActivity {
             configureTermuxFloatPreference(context);
             configureTermuxTaskerPreference(context);
             configureTermuxWidgetPreference(context);
+            configureThemePresetPreference(context);
             configureAboutPreference(context);
             configureDonatePreference(context);
+        }
+
+        private void configureThemePresetPreference(@NonNull Context context) {
+            Preference themePreference = new Preference(context);
+            themePreference.setKey("nermux_theme_preset");
+            themePreference.setTitle(R.string.nermux_theme_preset_title);
+            themePreference.setSummary(getThemePresetSummary(context));
+            themePreference.setOrder(5);
+            themePreference.setOnPreferenceClickListener(preference -> {
+                String[] presets = {
+                    context.getString(R.string.nermux_theme_blue),
+                    context.getString(R.string.nermux_theme_amber),
+                    context.getString(R.string.nermux_theme_neon),
+                    context.getString(R.string.nermux_theme_minimal)
+                };
+                SharedPreferences preferences = context.getSharedPreferences("nermux_ui", Context.MODE_PRIVATE);
+                String current = preferences.getString("theme_preset", presets[0]);
+                int checked = 0;
+                for (int i = 0; i < presets.length; i++) {
+                    if (presets[i].equals(current)) {
+                        checked = i;
+                        break;
+                    }
+                }
+
+                new AlertDialog.Builder(context)
+                    .setTitle(R.string.nermux_theme_preset_title)
+                    .setSingleChoiceItems(presets, checked, (dialog, which) -> {
+                        preferences.edit().putString("theme_preset", presets[which]).apply();
+                        preference.setSummary(getThemePresetSummary(context));
+                        Toast.makeText(context, R.string.msg_theme_preset_saved, Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    })
+                    .show();
+                return true;
+            });
+            getPreferenceScreen().addPreference(themePreference);
+        }
+
+        private String getThemePresetSummary(@NonNull Context context) {
+            String fallback = context.getString(R.string.nermux_theme_blue);
+            String preset = context.getSharedPreferences("nermux_ui", Context.MODE_PRIVATE)
+                .getString("theme_preset", fallback);
+            return context.getString(R.string.nermux_theme_preset_summary, preset);
         }
 
         private void configureTermuxAPIPreference(@NonNull Context context) {

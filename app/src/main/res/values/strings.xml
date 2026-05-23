@@ -56,6 +56,7 @@
     <string name="action_close_editor">Close editor</string>
     <string name="action_save_file">Save file</string>
     <string name="action_find">Find</string>
+    <string name="action_command_palette">Command palette</string>
     <string name="action_file_actions">File actions</string>
     <string name="action_terminal_here">Terminal here</string>
     <string name="action_go_up">Go up</string>
@@ -68,6 +69,9 @@
     <string name="action_run_in_terminal">Run in terminal</string>
     <string name="action_rename">Rename</string>
     <string name="action_delete">Delete</string>
+    <string name="action_copy_path">Copy path</string>
+    <string name="action_add_favorite">Add favorite</string>
+    <string name="action_remove_favorite">Remove favorite</string>
     <string name="title_new_file">New file</string>
     <string name="title_new_folder">New folder</string>
     <string name="title_rename_file">Rename</string>
@@ -86,9 +90,19 @@
     <string name="error_selected_folder_not_supported">Pick a folder from internal shared storage so Nermux can run it in terminal.</string>
     <string name="msg_file_saved">Saved</string>
     <string name="msg_no_match">No match found</string>
+    <string name="msg_path_copied">Path copied</string>
+    <string name="msg_favorite_added">Favorite added</string>
+    <string name="msg_favorite_removed">Favorite removed</string>
     <string name="msg_folder_opened">Folder opened</string>
     <string name="msg_terminal_started">Terminal opened</string>
     <string name="msg_power_command_started">Command opened in terminal</string>
+    <string name="nermux_theme_preset_title">Theme presets</string>
+    <string name="nermux_theme_preset_summary">Current preset: %1$s</string>
+    <string name="nermux_theme_blue">Nermux Blue</string>
+    <string name="nermux_theme_amber">Amber</string>
+    <string name="nermux_theme_neon">Neon</string>
+    <string name="nermux_theme_minimal">Minimal Dark</string>
+    <string name="msg_theme_preset_saved">Theme preset saved</string>
     <string name="title_confirm_paste">Review paste</string>
     <string name="action_paste_anyway">Paste anyway</string>
     <string name="title_max_terminals_reached">Max terminals reached</string>

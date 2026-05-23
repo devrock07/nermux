@@ -1,6 +1,8 @@
 package com.termux.app.activities;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -10,8 +12,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.text.Editable;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +32,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.termux.R;
 import com.termux.app.TermuxActivity;
@@ -46,8 +51,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class NermuxWorkspaceActivity extends AppCompatActivity {
 
@@ -61,6 +70,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
     private File mCurrentDir;
     private File mEditingFile;
     private String mOriginalEditorText;
+    private boolean mApplyingSyntaxHighlighting;
 
     private TextView mPathView;
     private TextView mItemCountView;
@@ -73,6 +83,8 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
     private EditText mEditorView;
     private WorkspaceFileAdapter mAdapter;
     private String mLastFindQuery;
+    private final List<File> mRecentFiles = new ArrayList<>();
+    private final Set<String> mFavoritePaths = new HashSet<>();
 
     public static Intent newInstance(@NonNull Context context, @Nullable String startDirectory) {
         Intent intent = new Intent(context, NermuxWorkspaceActivity.class);
@@ -121,6 +133,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
                 mEditorView.post(() -> {
                     updateLineNumbers();
                     updateEditorStatus();
+                    applySyntaxHighlighting();
                 });
             }
         });
@@ -282,6 +295,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         }
 
         mEditingFile = file;
+        rememberRecent(file);
         mOriginalEditorText = new String(bytes, StandardCharsets.UTF_8);
         updateEditorTitle();
         mEditorView.setText(mOriginalEditorText);
@@ -292,6 +306,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         mEditorView.post(() -> {
             updateLineNumbers();
             updateEditorStatus();
+            applySyntaxHighlighting();
         });
         mEditorView.requestFocus();
 
@@ -495,29 +510,28 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         if (file == null) return;
         performHapticFeedback();
 
-        String[] labels = file.isDirectory()
-            ? new String[] {
-                getString(R.string.action_open),
-                getString(R.string.action_terminal_here),
-                getString(R.string.action_rename),
-                getString(R.string.action_delete)
-            }
-            : new String[] {
-                getString(R.string.action_open),
-                getString(R.string.action_run_in_terminal),
-                getString(R.string.action_rename),
-                getString(R.string.action_delete)
-            };
+        List<String> labels = new ArrayList<>();
+        labels.add(getString(R.string.action_open));
+        labels.add(getString(file.isDirectory() ? R.string.action_terminal_here : R.string.action_run_in_terminal));
+        labels.add(getString(R.string.action_copy_path));
+        labels.add(getString(isFavorite(file) ? R.string.action_remove_favorite : R.string.action_add_favorite));
+        labels.add(getString(R.string.action_rename));
+        labels.add(getString(R.string.action_delete));
 
         new AlertDialog.Builder(this)
             .setTitle(file.getName())
-            .setItems(labels, (dialog, which) -> {
-                if (which == 0) openEntry(file);
-                else if (which == 1) {
+            .setItems(labels.toArray(new String[0]), (dialog, which) -> {
+                String selected = labels.get(which);
+                if (selected.equals(getString(R.string.action_open))) openEntry(file);
+                else if (selected.equals(getString(R.string.action_terminal_here)) ||
+                    selected.equals(getString(R.string.action_run_in_terminal))) {
                     if (file.isDirectory()) openTerminalAt(file);
                     else runFileInTerminal(file);
-                } else if (which == 2) showRenameDialog(file);
-                else if (which == 3) confirmDelete(file);
+                } else if (selected.equals(getString(R.string.action_copy_path))) copyPath(file);
+                else if (selected.equals(getString(R.string.action_add_favorite)) ||
+                    selected.equals(getString(R.string.action_remove_favorite))) toggleFavorite(file);
+                else if (selected.equals(getString(R.string.action_rename))) showRenameDialog(file);
+                else if (selected.equals(getString(R.string.action_delete))) confirmDelete(file);
             })
             .show();
     }
@@ -550,6 +564,42 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         } else {
             showToast(R.string.error_workspace_unavailable);
         }
+    }
+
+    private void copyPath(File file) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(ClipData.newPlainText("Nermux path", file.getAbsolutePath()));
+            performHapticFeedback();
+            showToast(R.string.msg_path_copied);
+        }
+    }
+
+    private void toggleFavorite(File file) {
+        String path = canonicalOrSelf(file).getAbsolutePath();
+        boolean removed = mFavoritePaths.remove(path);
+        if (!removed) mFavoritePaths.add(path);
+        performHapticFeedback();
+        showToast(removed ? R.string.msg_favorite_removed : R.string.msg_favorite_added);
+        mAdapter.notifyDataSetChanged();
+    }
+
+    private boolean isFavorite(File file) {
+        return file != null && mFavoritePaths.contains(canonicalOrSelf(file).getAbsolutePath());
+    }
+
+    private void rememberRecent(File file) {
+        File canonicalFile = canonicalOrSelf(file);
+        mRecentFiles.removeIf(recent -> sameFile(recent, canonicalFile));
+        mRecentFiles.add(0, canonicalFile);
+        while (mRecentFiles.size() > 12) mRecentFiles.remove(mRecentFiles.size() - 1);
+    }
+
+    private boolean isRecent(File file) {
+        for (File recent : mRecentFiles) {
+            if (sameFile(recent, file)) return true;
+        }
+        return false;
     }
 
     private void openTerminalAt(File directory) {
@@ -768,6 +818,50 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         mEditorTitleView.setText(mEditingFile.getName() + suffix);
     }
 
+    private void applySyntaxHighlighting() {
+        if (mApplyingSyntaxHighlighting || mEditingFile == null || mEditorView == null) return;
+        Editable editable = mEditorView.getText();
+        if (editable == null || editable.length() > 200000 || !looksLikeCodeFile(mEditingFile)) return;
+
+        mApplyingSyntaxHighlighting = true;
+        try {
+            ForegroundColorSpan[] spans = editable.getSpans(0, editable.length(), ForegroundColorSpan.class);
+            for (ForegroundColorSpan span : spans) editable.removeSpan(span);
+
+            String source = editable.toString();
+            highlight(editable, source, "\"([^\"\\\\]|\\\\.)*\"|'([^'\\\\]|\\\\.)*'", R.color.nermux_accent_yellow);
+            highlight(editable, source, "(?m)(#|//).*$", R.color.nermux_text_muted);
+            highlight(editable, source, "\\b\\d+(\\.\\d+)?\\b", R.color.nermux_accent_purple);
+
+            String name = mEditingFile.getName().toLowerCase(Locale.ROOT);
+            if (name.endsWith(".py")) {
+                highlight(editable, source, "\\b(def|class|import|from|return|if|elif|else|for|while|try|except|with|as|lambda|True|False|None)\\b", R.color.nermux_accent_bright);
+            } else if (name.endsWith(".js") || name.endsWith(".ts") || name.endsWith(".json")) {
+                highlight(editable, source, "\\b(function|const|let|var|return|if|else|for|while|class|import|from|export|async|await|true|false|null)\\b", R.color.nermux_accent_bright);
+            } else {
+                highlight(editable, source, "\\b(if|then|fi|for|do|done|case|esac|export|echo|cd|mkdir|pkg|apt|source|alias)\\b", R.color.nermux_accent_bright);
+            }
+        } finally {
+            mApplyingSyntaxHighlighting = false;
+        }
+    }
+
+    private boolean looksLikeCodeFile(File file) {
+        String name = file.getName().toLowerCase(Locale.ROOT);
+        return name.endsWith(".sh") || name.endsWith(".bash") || name.endsWith(".zsh") ||
+            name.endsWith(".py") || name.endsWith(".js") || name.endsWith(".ts") ||
+            name.endsWith(".json") || name.endsWith(".md") || name.endsWith(".txt") ||
+            name.equals(".profile") || name.equals(".bashrc") || name.equals(".zshrc");
+    }
+
+    private void highlight(Editable editable, String source, String regex, int colorRes) {
+        Matcher matcher = Pattern.compile(regex).matcher(source);
+        int color = ContextCompat.getColor(this, colorRes);
+        while (matcher.find()) {
+            editable.setSpan(new ForegroundColorSpan(color), matcher.start(), matcher.end(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+    }
+
     private String formatSize(long size) {
         if (size < 1024) return size + " B";
         double value = size / 1024.0;
@@ -822,14 +916,30 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
             ImageView icon = view.findViewById(R.id.workspace_file_icon);
             TextView name = view.findViewById(R.id.workspace_file_name);
             TextView meta = view.findViewById(R.id.workspace_file_meta);
+            TextView badge = view.findViewById(R.id.workspace_file_badge);
             ImageButton more = view.findViewById(R.id.workspace_file_more);
 
             icon.setImageResource(file.isDirectory() ? R.drawable.ic_folder : R.drawable.ic_file);
             name.setText(file.getName());
             meta.setText(formatMeta(file));
+            badge.setText(fileBadge(file));
+            badge.setVisibility(TextUtils.isEmpty(badge.getText()) ? View.GONE : View.VISIBLE);
             more.setOnClickListener(v -> showEntryActions(file));
 
             return view;
         }
+    }
+
+    private String fileBadge(File file) {
+        if (isFavorite(file)) return "FAV";
+        if (isRecent(file)) return "REC";
+        if (file.isDirectory()) return "DIR";
+        String name = file.getName();
+        int dot = name.lastIndexOf('.');
+        if (dot >= 0 && dot < name.length() - 1) {
+            String extension = name.substring(dot + 1).toUpperCase(Locale.ROOT);
+            return extension.length() > 5 ? extension.substring(0, 5) : extension;
+        }
+        return "";
     }
 }
