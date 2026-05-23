@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +14,7 @@ import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
@@ -27,9 +30,13 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.termux.R;
+import com.termux.app.ai.NermuxAiClient;
+import com.termux.app.ai.NermuxAiConfig;
 import com.termux.app.api.file.FileReceiverActivity;
 import com.termux.app.terminal.TermuxActivityRootView;
 import com.termux.app.terminal.TermuxTerminalSessionActivityClient;
@@ -58,6 +65,7 @@ import com.termux.shared.termux.settings.properties.TermuxAppSharedProperties;
 import com.termux.shared.termux.theme.TermuxThemeUtils;
 import com.termux.shared.theme.NightMode;
 import com.termux.shared.view.ViewUtils;
+import com.termux.shared.shell.ShellUtils;
 import com.termux.terminal.TerminalSession;
 import com.termux.terminal.TerminalSessionClient;
 import com.termux.view.TerminalView;
@@ -180,6 +188,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private float mTerminalToolbarDefaultHeight;
 
+    private String mLastAiRunnableCommand;
+
 
     private static final int CONTEXT_MENU_SELECT_URL_ID = 0;
     private static final int CONTEXT_MENU_SHARE_TRANSCRIPT_ID = 1;
@@ -257,6 +267,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         setSettingsButtonView();
 
+        setAgentButtonView();
+
+        setAgentPanelView();
+
         setWorkspaceButtonView();
 
         setPowerCenterButtonView();
@@ -330,6 +344,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         if (mTermuxTerminalViewClient != null)
             mTermuxTerminalViewClient.onResume();
+
+        refreshAgentProviderStatus();
 
         // Check if a crash happened on last run of the app or if a plugin crashed and show a
         // notification with the crash details if it did
@@ -592,6 +608,244 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         });
     }
 
+    private void setAgentButtonView() {
+        ImageButton agentButton = findViewById(R.id.agent_button);
+        attachPressMotion(agentButton);
+        agentButton.setOnClickListener(v -> {
+            performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
+            refreshAgentProviderStatus();
+            DrawerLayout drawer = getDrawer();
+            drawer.closeDrawer(Gravity.LEFT);
+            drawer.postDelayed(() -> drawer.openDrawer(Gravity.RIGHT), UI_MOTION_SHORT_MS);
+        });
+        agentButton.setOnLongClickListener(v -> {
+            performUiHaptic(HapticFeedbackConstants.LONG_PRESS);
+            openAiSettings();
+            return true;
+        });
+    }
+
+    private void setAgentPanelView() {
+        View closeButton = findViewById(R.id.close_agent_button);
+        View settingsButton = findViewById(R.id.agent_settings_button);
+        View sendButton = findViewById(R.id.agent_send_button);
+        View fixButton = findViewById(R.id.agent_fix_button);
+        View explainButton = findViewById(R.id.agent_explain_button);
+        View runButton = findViewById(R.id.agent_run_button);
+        View copyButton = findViewById(R.id.agent_copy_button);
+
+        attachPressMotion(closeButton);
+        attachPressMotion(settingsButton);
+        attachPressMotion(sendButton);
+        attachPressMotion(fixButton);
+        attachPressMotion(explainButton);
+        attachPressMotion(runButton);
+        attachPressMotion(copyButton);
+
+        if (closeButton != null) {
+            closeButton.setOnClickListener(v -> {
+                performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
+                getDrawer().closeDrawer(Gravity.RIGHT);
+            });
+        }
+
+        if (settingsButton != null) {
+            settingsButton.setOnClickListener(v -> {
+                performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
+                openAiSettings();
+            });
+        }
+
+        if (sendButton != null)
+            sendButton.setOnClickListener(v -> sendAgentRequest("answer the user's terminal question"));
+
+        if (fixButton != null)
+            fixButton.setOnClickListener(v -> sendAgentRequest("fix the current terminal error"));
+
+        if (explainButton != null)
+            explainButton.setOnClickListener(v -> sendAgentRequest("explain the current terminal output"));
+
+        if (runButton != null)
+            runButton.setOnClickListener(v -> confirmRunAiCommand());
+
+        if (copyButton != null)
+            copyButton.setOnClickListener(v -> copyAgentAnswer());
+
+        refreshAgentProviderStatus();
+    }
+
+    private void openAiSettings() {
+        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+        settingsIntent.putExtra(SettingsActivity.EXTRA_OPEN_AI_SETTINGS, true);
+        ActivityUtils.startActivity(this, settingsIntent);
+    }
+
+    private void sendAgentRequest(@NonNull String task) {
+        performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
+        refreshAgentProviderStatus();
+
+        if (!NermuxAiConfig.hasApiKey(this)) {
+            setAgentStatus(getString(R.string.nermux_ai_api_key_missing));
+            setAgentResponse("Open AI Providers at the bottom of this panel. Choose ChatGPT, Gemini, Groq, OpenRouter, or Custom, then tap \"2. API key\" and paste your key.");
+            return;
+        }
+
+        EditText promptInput = findViewById(R.id.agent_prompt_input);
+        String prompt = promptInput == null ? "" : promptInput.getText().toString();
+        String terminalContext = getTerminalTranscriptForAgent();
+
+        mLastAiRunnableCommand = null;
+        setAgentRunButtonVisible(false);
+        setAgentBusy(true);
+        setAgentStatus(getString(R.string.nermux_ai_thinking));
+        setAgentResponse(getString(R.string.nermux_ai_thinking));
+
+        NermuxAiClient.ask(this, task, terminalContext, prompt, new NermuxAiClient.Callback() {
+            @Override
+            public void onSuccess(@NonNull String answer) {
+                runOnUiThread(() -> {
+                    setAgentBusy(false);
+                    mLastAiRunnableCommand = NermuxAiConfig.shouldAllowRunCommands(TermuxActivity.this)
+                        ? extractRunnableCommand(answer)
+                        : null;
+                    setAgentStatus(NermuxAiConfig.getProviderTitle(NermuxAiConfig.getProvider(TermuxActivity.this)) + " answered");
+                    setAgentResponse(answer);
+                    setAgentRunButtonVisible(!TextUtils.isEmpty(mLastAiRunnableCommand));
+                    scrollAgentToResponse();
+                });
+            }
+
+            @Override
+            public void onError(@NonNull String message) {
+                runOnUiThread(() -> {
+                    setAgentBusy(false);
+                    mLastAiRunnableCommand = null;
+                    setAgentRunButtonVisible(false);
+                    setAgentStatus("AI request failed");
+                    setAgentResponse(message);
+                    scrollAgentToResponse();
+                });
+            }
+        });
+    }
+
+    @NonNull
+    private String getTerminalTranscriptForAgent() {
+        TerminalSession session = getCurrentSession();
+        if (session == null) return "";
+        String transcript = ShellUtils.getTerminalSessionTranscriptText(session, false, true);
+        if (transcript == null) return "";
+        return DataUtils.getTruncatedCommandOutput(transcript, 24000, false, true, false).trim();
+    }
+
+    @Nullable
+    private String extractRunnableCommand(@NonNull String answer) {
+        String[] lines = answer.split("\\r?\\n");
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (!trimmed.regionMatches(true, 0, "RUN:", 0, 4)) continue;
+            String command = trimmed.substring(4).trim();
+            command = trimCommandDecorators(command);
+            return TextUtils.isEmpty(command) ? null : command;
+        }
+        return null;
+    }
+
+    @NonNull
+    private String trimCommandDecorators(@NonNull String command) {
+        String cleaned = command.trim();
+        while (cleaned.startsWith("`")) cleaned = cleaned.substring(1).trim();
+        while (cleaned.endsWith("`")) cleaned = cleaned.substring(0, cleaned.length() - 1).trim();
+        return cleaned;
+    }
+
+    private void confirmRunAiCommand() {
+        performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
+        if (TextUtils.isEmpty(mLastAiRunnableCommand)) {
+            showToast(getString(R.string.nermux_ai_no_command), false);
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+            .setTitle(R.string.title_ai_run_command)
+            .setMessage(mLastAiRunnableCommand)
+            .setPositiveButton(R.string.action_ai_run_suggestion, (dialog, which) -> {
+                TerminalSession session = getCurrentSession();
+                if (session != null) {
+                    session.write(mLastAiRunnableCommand + "\n");
+                    showToast(getString(R.string.msg_ai_command_sent), false);
+                    getDrawer().closeDrawer(Gravity.RIGHT);
+                }
+            })
+            .setNegativeButton(android.R.string.cancel, null)
+            .show();
+    }
+
+    private void copyAgentAnswer() {
+        performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
+        TextView responseText = findViewById(R.id.agent_response_text);
+        if (responseText == null || TextUtils.isEmpty(responseText.getText())) return;
+
+        ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboardManager != null) {
+            clipboardManager.setPrimaryClip(ClipData.newPlainText(getString(R.string.title_ai_agent), responseText.getText()));
+            showToast(getString(R.string.msg_ai_answer_copied), false);
+        }
+    }
+
+    private void refreshAgentProviderStatus() {
+        TextView providerStatus = findViewById(R.id.agent_provider_status);
+        TextView headerSubtitle = findViewById(R.id.agent_header_subtitle);
+        if (providerStatus == null && headerSubtitle == null) return;
+
+        String provider = NermuxAiConfig.getProvider(this);
+        String title = NermuxAiConfig.getProviderTitle(provider);
+        String model = NermuxAiConfig.getModel(this);
+        boolean ready = NermuxAiConfig.hasApiKey(this);
+        String status = title + "  •  " + model + (ready ? "  •  ready" : "  •  add key");
+
+        if (providerStatus != null) providerStatus.setText(status);
+        if (headerSubtitle != null)
+            headerSubtitle.setText(ready ? "Provider ready" : getString(R.string.nermux_ai_waiting));
+    }
+
+    private void setAgentStatus(@NonNull String text) {
+        TextView statusText = findViewById(R.id.agent_status_text);
+        if (statusText != null) statusText.setText(text);
+    }
+
+    private void setAgentResponse(@NonNull String text) {
+        TextView responseText = findViewById(R.id.agent_response_text);
+        if (responseText != null) responseText.setText(text);
+    }
+
+    private void setAgentRunButtonVisible(boolean visible) {
+        View runButton = findViewById(R.id.agent_run_button);
+        if (runButton != null) runButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    private void setAgentBusy(boolean busy) {
+        View sendButton = findViewById(R.id.agent_send_button);
+        View fixButton = findViewById(R.id.agent_fix_button);
+        View explainButton = findViewById(R.id.agent_explain_button);
+        setAgentActionEnabled(sendButton, !busy);
+        setAgentActionEnabled(fixButton, !busy);
+        setAgentActionEnabled(explainButton, !busy);
+    }
+
+    private void setAgentActionEnabled(@Nullable View view, boolean enabled) {
+        if (view == null) return;
+        view.setEnabled(enabled);
+        view.setAlpha(enabled ? 1f : 0.52f);
+    }
+
+    private void scrollAgentToResponse() {
+        ScrollView scrollView = findViewById(R.id.agent_scroll);
+        View responseText = findViewById(R.id.agent_response_text);
+        if (scrollView != null && responseText != null)
+            scrollView.post(() -> scrollView.smoothScrollTo(0, responseText.getTop()));
+    }
+
     private void setWorkspaceButtonView() {
         ImageButton workspaceButton = findViewById(R.id.workspace_button);
         attachPressMotion(workspaceButton);
@@ -660,33 +914,49 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     private void setDrawerMotion() {
         DrawerLayout drawerLayout = getDrawer();
-        View drawer = findViewById(R.id.left_drawer);
-        if (drawerLayout == null || drawer == null) return;
+        View leftDrawer = findViewById(R.id.left_drawer);
+        View agentDrawer = findViewById(R.id.agent_drawer);
+        if (drawerLayout == null) return;
 
         drawerLayout.setScrimColor(ContextCompat.getColor(this, R.color.nermux_drawer_scrim));
-        drawer.setAlpha(0.92f);
-        drawer.setTranslationX(-dpToPx(18));
+        if (leftDrawer != null) {
+            leftDrawer.setAlpha(0.92f);
+            leftDrawer.setTranslationX(-dpToPx(18));
+        }
+        if (agentDrawer != null) {
+            agentDrawer.setAlpha(0.92f);
+            agentDrawer.setTranslationX(dpToPx(18));
+        }
 
         drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
             @Override
             public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
-                if (drawerView != drawer) return;
-                drawer.setAlpha(0.92f + (slideOffset * 0.08f));
-                drawer.setTranslationX(-dpToPx(18) * (1f - slideOffset));
+                if (drawerView == leftDrawer) {
+                    leftDrawer.setAlpha(0.92f + (slideOffset * 0.08f));
+                    leftDrawer.setTranslationX(-dpToPx(18) * (1f - slideOffset));
+                } else if (drawerView == agentDrawer) {
+                    agentDrawer.setAlpha(0.92f + (slideOffset * 0.08f));
+                    agentDrawer.setTranslationX(dpToPx(18) * (1f - slideOffset));
+                }
             }
 
             @Override
             public void onDrawerOpened(@NonNull View drawerView) {
-                if (drawerView != drawer) return;
-                drawer.setAlpha(1f);
-                drawer.setTranslationX(0f);
+                if (drawerView == leftDrawer || drawerView == agentDrawer) {
+                    drawerView.setAlpha(1f);
+                    drawerView.setTranslationX(0f);
+                }
             }
 
             @Override
             public void onDrawerClosed(@NonNull View drawerView) {
-                if (drawerView != drawer) return;
-                drawer.setAlpha(0.92f);
-                drawer.setTranslationX(-dpToPx(18));
+                if (drawerView == leftDrawer) {
+                    leftDrawer.setAlpha(0.92f);
+                    leftDrawer.setTranslationX(-dpToPx(18));
+                } else if (drawerView == agentDrawer) {
+                    agentDrawer.setAlpha(0.92f);
+                    agentDrawer.setTranslationX(dpToPx(18));
+                }
             }
         });
     }
@@ -766,7 +1036,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     @SuppressLint({"RtlHardcoded", "MissingSuperCall"})
     @Override
     public void onBackPressed() {
-        if (getDrawer().isDrawerOpen(Gravity.LEFT)) {
+        if (getDrawer().isDrawerOpen(Gravity.RIGHT)) {
+            getDrawer().closeDrawer(Gravity.RIGHT);
+        } else if (getDrawer().isDrawerOpen(Gravity.LEFT)) {
             getDrawer().closeDrawers();
         } else {
             finishActivityIfNotFinishing();

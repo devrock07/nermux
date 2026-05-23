@@ -103,6 +103,17 @@
                         android:src="@drawable/ic_settings"
                         app:tint="@color/nermux_text_secondary" />
 
+                    <ImageButton
+                        android:id="@+id/agent_button"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/nermux_compact_button_background"
+                        android:contentDescription="@string/action_open_ai_agent"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_agent"
+                        app:tint="@color/nermux_accent_bright" />
+
                     <View
                         android:layout_width="1dp"
                         android:layout_height="0dp"
@@ -199,6 +210,334 @@
                         android:paddingStart="8dp"
                         android:paddingEnd="8dp" />
                 </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/agent_drawer"
+                android:layout_width="328dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:background="@drawable/nermux_agent_drawer_background"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="10dp">
+
+                    <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@drawable/nermux_primary_icon_button_background"
+                        android:contentDescription="@null"
+                        android:padding="9dp"
+                        android:src="@drawable/ic_agent"
+                        app:tint="@color/nermux_text_primary" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:text="@string/title_ai_agent"
+                            android:textColor="@color/nermux_text_primary"
+                            android:textSize="17sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/agent_header_subtitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:ellipsize="end"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:text="@string/nermux_ai_waiting"
+                            android:textColor="@color/nermux_text_muted"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <ImageButton
+                        android:id="@+id/close_agent_button"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:background="@drawable/nermux_compact_button_background"
+                        android:contentDescription="@string/action_close_ai_agent"
+                        android:padding="10dp"
+                        android:src="@drawable/ic_close"
+                        app:tint="@color/nermux_text_secondary" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/nermux_outline" />
+
+                <ScrollView
+                    android:id="@+id/agent_scroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:clipToPadding="false"
+                    android:overScrollMode="never">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:includeFontPadding="false"
+                            android:text="@string/nermux_ai_panel_intro"
+                            android:textColor="@color/nermux_text_secondary"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/agent_provider_status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:background="@drawable/nermux_agent_status_pill_background"
+                            android:includeFontPadding="false"
+                            android:textColor="@color/nermux_accent_green"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/agent_prompt_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="96dp"
+                            android:layout_marginTop="14dp"
+                            android:background="@drawable/nermux_agent_input_background"
+                            android:gravity="top|start"
+                            android:hint="@string/hint_ai_prompt"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:maxLines="5"
+                            android:overScrollMode="never"
+                            android:textColor="@color/nermux_text_primary"
+                            android:textColorHint="@color/nermux_text_muted"
+                            android:textSize="13sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="42dp"
+                            android:layout_marginTop="10dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/agent_fix_button"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@drawable/nermux_agent_secondary_button_background"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:gravity="center"
+                                android:includeFontPadding="false"
+                                android:text="@string/action_ai_fix_error"
+                                android:textColor="@color/nermux_text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/agent_explain_button"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="8dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/nermux_agent_secondary_button_background"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:gravity="center"
+                                android:includeFontPadding="false"
+                                android:text="@string/action_ai_explain"
+                                android:textColor="@color/nermux_text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <ImageButton
+                                android:id="@+id/agent_send_button"
+                                android:layout_width="46dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="8dp"
+                                android:background="@drawable/nermux_agent_primary_button_background"
+                                android:contentDescription="@string/action_ai_send"
+                                android:padding="11dp"
+                                android:src="@drawable/ic_send"
+                                app:tint="@color/nermux_text_primary" />
+                        </LinearLayout>
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="18dp"
+                            android:includeFontPadding="false"
+                            android:text="@string/nermux_ai_response_label"
+                            android:textColor="@color/nermux_text_muted"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/agent_status_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:includeFontPadding="false"
+                            android:text="@string/nermux_ai_waiting"
+                            android:textColor="@color/nermux_accent_bright"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/agent_response_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/nermux_agent_card_background"
+                            android:includeFontPadding="false"
+                            android:lineSpacingExtra="3dp"
+                            android:minHeight="132dp"
+                            android:padding="12dp"
+                            android:text="@string/nermux_ai_panel_intro"
+                            android:textColor="@color/nermux_text_primary"
+                            android:textIsSelectable="true"
+                            android:textSize="12sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="40dp"
+                            android:layout_marginTop="10dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/agent_run_button"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@drawable/nermux_agent_run_button_background"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:gravity="center"
+                                android:includeFontPadding="false"
+                                android:text="@string/action_ai_run_suggestion"
+                                android:textColor="#141414"
+                                android:textSize="12sp"
+                                android:textStyle="bold"
+                                android:visibility="gone" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:id="@+id/agent_copy_button"
+                                android:layout_width="92dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginStart="8dp"
+                                android:background="@drawable/nermux_agent_secondary_button_background"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:gravity="center"
+                                android:includeFontPadding="false"
+                                android:text="@string/action_ai_copy_answer"
+                                android:textColor="@color/nermux_text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="18dp"
+                            android:includeFontPadding="false"
+                            android:text="@string/nermux_ai_tools_label"
+                            android:textColor="@color/nermux_text_muted"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/nermux_agent_card_background"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:includeFontPadding="false"
+                                android:text="@string/nermux_ai_context_label"
+                                android:textColor="@color/nermux_text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:includeFontPadding="false"
+                                android:text="@string/nermux_ai_context_ready"
+                                android:textColor="@color/nermux_text_muted"
+                                android:textSize="11sp" />
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:layout_marginTop="12dp"
+                                android:layout_marginBottom="12dp"
+                                android:background="@color/nermux_outline" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:includeFontPadding="false"
+                                android:text="@string/nermux_ai_command_guard_label"
+                                android:textColor="@color/nermux_text_primary"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <com.google.android.material.textview.MaterialTextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:includeFontPadding="false"
+                                android:text="@string/nermux_ai_command_guard_ready"
+                                android:textColor="@color/nermux_text_muted"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </ScrollView>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/nermux_outline" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/agent_settings_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:background="@color/nermux_surface"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:text="@string/action_ai_settings"
+                    android:textColor="@color/nermux_accent_bright"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
         </androidx.drawerlayout.widget.DrawerLayout>

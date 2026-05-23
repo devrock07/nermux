@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="nermux_ai_provider_entries">
+        <item>ChatGPT</item>
+        <item>Gemini</item>
+        <item>Groq</item>
+        <item>OpenRouter</item>
+        <item>Custom OpenAI-compatible</item>
+    </string-array>
+
+    <string-array name="nermux_ai_provider_values">
+        <item>openai</item>
+        <item>gemini</item>
+        <item>groq</item>
+        <item>openrouter</item>
+        <item>custom_openai</item>
+    </string-array>
+</resources>

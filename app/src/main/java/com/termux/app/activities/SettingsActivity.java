@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 
 import com.termux.R;
+import com.termux.app.fragments.settings.NermuxAiPreferencesFragment;
 import com.termux.app.fragments.settings.NermuxPreferenceFragment;
 import com.termux.shared.activities.ReportActivity;
 import com.termux.shared.file.FileUtils;
@@ -33,6 +34,7 @@ import com.termux.shared.theme.NightMode;
 public class SettingsActivity extends AppCompatActivity {
 
     private static final String UPSTREAM_TERMUX_APP_URL = "https://github.com/termux/termux-app";
+    public static final String EXTRA_OPEN_AI_SETTINGS = "com.termux.app.extra.OPEN_AI_SETTINGS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +48,12 @@ public class SettingsActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_settings);
         if (savedInstanceState == null) {
+            NermuxPreferenceFragment fragment = getIntent().getBooleanExtra(EXTRA_OPEN_AI_SETTINGS, false)
+                ? new NermuxAiPreferencesFragment()
+                : new RootPreferencesFragment();
             getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.settings, new RootPreferencesFragment())
+                .replace(R.id.settings, fragment)
                 .commit();
         }
 
