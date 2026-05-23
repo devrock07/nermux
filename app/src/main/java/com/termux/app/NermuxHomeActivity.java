@@ -467,22 +467,51 @@ public class NermuxHomeActivity extends AppCompatActivity {
     private void showCommandPalette() {
         Dialog dialog = new Dialog(this);
         LinearLayout palette = createSheetContainer();
-        palette.setPadding(dp(18), dp(18), dp(18), dp(18));
-        palette.addView(text("Command palette", 20, R.color.nermux_text_primary, true));
+        palette.setPadding(dp(16), dp(16), dp(16), dp(16));
+
+        LinearLayout header = new LinearLayout(this);
+        header.setGravity(Gravity.CENTER_VERTICAL);
+        header.setOrientation(LinearLayout.HORIZONTAL);
+        header.addView(text("Command palette", 20, R.color.nermux_text_primary, true),
+            new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+
+        TextView hintPill = text("RUN / OPEN / COPY", 10, R.color.nermux_text_muted, true);
+        hintPill.setGravity(Gravity.CENTER);
+        hintPill.setIncludeFontPadding(false);
+        hintPill.setPadding(dp(9), 0, dp(9), 0);
+        hintPill.setBackground(round(Color.rgb(24, 27, 31), dp(12), color(R.color.nermux_outline), dp(1)));
+        header.addView(hintPill, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(24)));
+        palette.addView(header);
 
         EditText input = new EditText(this);
         input.setSingleLine(true);
         input.setTextColor(color(R.color.nermux_text_primary));
         input.setHintTextColor(color(R.color.nermux_text_muted));
         input.setHint("Search commands or screens");
-        input.setTextSize(14);
-        input.setPadding(dp(14), 0, dp(14), 0);
-        input.setBackground(round(color(R.color.nermux_surface_deep), dp(20), color(R.color.nermux_outline), dp(1)));
-        palette.addView(input, blockParams(0, 14, 0, 0));
+        input.setTextSize(15);
+        input.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+        input.setPadding(dp(10), 0, 0, 0);
+        input.setMinHeight(dp(48));
+        input.setIncludeFontPadding(false);
+        input.setBackgroundColor(Color.TRANSPARENT);
+
+        LinearLayout searchBar = new LinearLayout(this);
+        searchBar.setGravity(Gravity.CENTER_VERTICAL);
+        searchBar.setOrientation(LinearLayout.HORIZONTAL);
+        searchBar.setPadding(dp(14), 0, dp(14), 0);
+        searchBar.setMinimumHeight(dp(50));
+        searchBar.setBackground(round(Color.rgb(14, 17, 21), dp(16), color(R.color.nermux_outline_strong), dp(1)));
+
+        ImageView searchIcon = new ImageView(this);
+        searchIcon.setImageResource(R.drawable.ic_search);
+        searchIcon.setColorFilter(color(R.color.nermux_accent_bright));
+        searchBar.addView(searchIcon, new LinearLayout.LayoutParams(dp(20), dp(20)));
+        searchBar.addView(input, new LinearLayout.LayoutParams(0, dp(50), 1));
+        palette.addView(searchBar, blockParams(0, 14, 0, 0));
 
         LinearLayout results = new LinearLayout(this);
         results.setOrientation(LinearLayout.VERTICAL);
-        palette.addView(results, blockParams(0, 12, 0, 0));
+        palette.addView(results, blockParams(0, 14, 0, 0));
 
         Runnable[] render = new Runnable[1];
         render[0] = () -> renderPaletteResults(results, dialog, input.getText().toString());
@@ -496,6 +525,9 @@ public class NermuxHomeActivity extends AppCompatActivity {
         showDialog(dialog, Gravity.TOP);
         render[0].run();
         input.requestFocus();
+        Window window = dialog.getWindow();
+        if (window != null)
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
 
     private void renderPaletteResults(LinearLayout results, Dialog dialog, String rawQuery) {
@@ -755,8 +787,6 @@ public class NermuxHomeActivity extends AppCompatActivity {
     }
 
     private int iconTintForAccent(@ColorRes int accent) {
-        if (accent == R.color.nermux_accent_yellow)
-            return Color.rgb(22, 24, 28);
         return Color.WHITE;
     }
 
