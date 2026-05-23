@@ -15,6 +15,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.HapticFeedbackConstants;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -24,6 +25,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,6 +52,8 @@ public class NermuxHomeActivity extends AppCompatActivity {
     private final List<CommandSection> mSections = createSections();
     private LinearLayout mCommandContainer;
     private EditText mSearchInput;
+    private View mBootstrapOverlay;
+    private TextView mBootstrapStatusView;
     private boolean mBootstrapReady;
     private boolean mBootstrapStarted;
     private boolean mOpenTerminalWhenReady;
@@ -74,6 +78,9 @@ public class NermuxHomeActivity extends AppCompatActivity {
     }
 
     private View createContentView() {
+        FrameLayout root = new FrameLayout(this);
+        root.setBackgroundColor(color(R.color.nermux_terminal_background));
+
         ScrollView scrollView = new ScrollView(this);
         scrollView.setFillViewport(true);
         scrollView.setClipToPadding(false);
@@ -98,7 +105,46 @@ public class NermuxHomeActivity extends AppCompatActivity {
         mCommandContainer = new LinearLayout(this);
         mCommandContainer.setOrientation(LinearLayout.VERTICAL);
         content.addView(mCommandContainer, blockParams(0, 10, 0, 0));
-        return scrollView;
+
+        root.addView(scrollView, new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        mBootstrapOverlay = createBootstrapOverlay();
+        root.addView(mBootstrapOverlay, new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        return root;
+    }
+
+    private View createBootstrapOverlay() {
+        FrameLayout overlay = new FrameLayout(this);
+        overlay.setBackgroundColor(Color.argb(214, 12, 14, 17));
+        overlay.setVisibility(View.GONE);
+        overlay.setAlpha(0f);
+        overlay.setClickable(true);
+
+        LinearLayout card = new LinearLayout(this);
+        card.setGravity(Gravity.CENTER_VERTICAL);
+        card.setOrientation(LinearLayout.HORIZONTAL);
+        card.setPadding(dp(18), dp(16), dp(18), dp(16));
+        card.setBackground(round(Color.rgb(21, 25, 30), dp(24), color(R.color.nermux_outline), dp(1)));
+
+        ProgressBar progressBar = new ProgressBar(this);
+        progressBar.setIndeterminate(true);
+        card.addView(progressBar, new LinearLayout.LayoutParams(dp(44), dp(44)));
+
+        LinearLayout copy = new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        copy.setPadding(dp(16), 0, 0, 0);
+        copy.addView(text("Preparing shell", 16, R.color.nermux_text_primary, true));
+        mBootstrapStatusView = text("Checking runtime files", 13, R.color.nermux_text_secondary, false);
+        copy.addView(mBootstrapStatusView, blockParams(0, 5, 0, 0));
+        card.addView(copy, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+
+        FrameLayout.LayoutParams cardParams = new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM);
+        cardParams.setMargins(dp(18), dp(18), dp(18), dp(26));
+        overlay.addView(card, cardParams);
+        return overlay;
     }
 
     private View createTitleRow() {
@@ -167,6 +213,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
         card.setPadding(dp(14), dp(12), dp(14), dp(12));
         card.setBackground(round(Color.rgb(17, 21, 26), dp(24), 0, 0));
         card.setOnClickListener(v -> openTerminal());
+        attachPressFeedback(card);
 
         FrameLayout iconShell = new FrameLayout(this);
         iconShell.setBackground(oval(color(R.color.nermux_accent)));
@@ -230,7 +277,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
 
         ImageView icon = new ImageView(this);
         icon.setImageResource(section.icon);
-        icon.setColorFilter(Color.WHITE);
+        icon.setColorFilter(iconTintForAccent(section.color));
         icon.setPadding(dp(6), dp(6), dp(6), dp(6));
         icon.setBackground(oval(color(section.color)));
         header.addView(icon, new LinearLayout.LayoutParams(dp(26), dp(26)));
@@ -270,6 +317,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
             runCommand(item);
             return true;
         });
+        attachPressFeedback(row);
 
         LinearLayout labels = new LinearLayout(this);
         labels.setOrientation(LinearLayout.VERTICAL);
@@ -281,6 +329,16 @@ public class NermuxHomeActivity extends AppCompatActivity {
             blockParams(0, 5, 0, 0));
         row.addView(labels, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
 
+        ImageButton run = new ImageButton(this);
+        run.setImageResource(R.drawable.ic_play_arrow);
+        run.setColorFilter(iconTintForAccent(accent));
+        run.setBackground(oval(color(accent)));
+        run.setPadding(dp(10), dp(10), dp(10), dp(10));
+        run.setContentDescription(getString(R.string.action_run_in_terminal));
+        run.setOnClickListener(v -> runCommand(item));
+        attachPressFeedback(run);
+        row.addView(run, new LinearLayout.LayoutParams(dp(38), dp(38)));
+
         ImageButton copy = new ImageButton(this);
         copy.setImageResource(R.drawable.ic_content_copy);
         copy.setColorFilter(color(R.color.nermux_text_muted));
@@ -288,7 +346,10 @@ public class NermuxHomeActivity extends AppCompatActivity {
         copy.setPadding(dp(10), dp(10), dp(10), dp(10));
         copy.setContentDescription("Copy command");
         copy.setOnClickListener(v -> copyCommand(item.command));
-        row.addView(copy, new LinearLayout.LayoutParams(dp(44), dp(44)));
+        attachPressFeedback(copy);
+        LinearLayout.LayoutParams copyParams = new LinearLayout.LayoutParams(dp(38), dp(38));
+        copyParams.setMargins(dp(8), 0, 0, 0);
+        row.addView(copy, copyParams);
 
         return row;
     }
@@ -326,11 +387,18 @@ public class NermuxHomeActivity extends AppCompatActivity {
     }
 
     private void ensureBootstrap() {
-        if (mBootstrapReady || mBootstrapStarted) return;
+        if (mBootstrapReady) {
+            hideBootstrapOverlay();
+            return;
+        }
+
+        showBootstrapOverlay("Checking runtime files");
+        if (mBootstrapStarted) return;
 
         mBootstrapStarted = true;
         TermuxInstaller.setupBootstrapIfNeeded(this, () -> {
             mBootstrapReady = true;
+            hideBootstrapOverlay();
             CommandItem pendingCommand = mPendingRunCommand;
             mPendingRunCommand = null;
 
@@ -340,7 +408,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
                 mOpenTerminalWhenReady = false;
                 startTerminalNow();
             }
-        });
+        }, this::showBootstrapOverlay);
     }
 
     private void executeCommand(CommandItem item) {
@@ -364,6 +432,26 @@ public class NermuxHomeActivity extends AppCompatActivity {
 
     private void startTerminalNow() {
         startActivity(TermuxActivity.newInstance(this));
+    }
+
+    private void showBootstrapOverlay(String message) {
+        runOnUiThread(() -> {
+            if (mBootstrapStatusView != null) mBootstrapStatusView.setText(message);
+            if (mBootstrapOverlay == null || mBootstrapOverlay.getVisibility() == View.VISIBLE) return;
+
+            mBootstrapOverlay.setVisibility(View.VISIBLE);
+            mBootstrapOverlay.animate().alpha(1f).setDuration(160).start();
+        });
+    }
+
+    private void hideBootstrapOverlay() {
+        runOnUiThread(() -> {
+            if (mBootstrapOverlay == null || mBootstrapOverlay.getVisibility() != View.VISIBLE) return;
+
+            mBootstrapOverlay.animate().alpha(0f).setDuration(140).withEndAction(() -> {
+                if (mBootstrapOverlay != null) mBootstrapOverlay.setVisibility(View.GONE);
+            }).start();
+        });
     }
 
     private View divider() {
@@ -417,8 +505,29 @@ public class NermuxHomeActivity extends AppCompatActivity {
         return ContextCompat.getColor(this, resId);
     }
 
+    private int iconTintForAccent(@ColorRes int accent) {
+        if (accent == R.color.nermux_accent_yellow)
+            return Color.rgb(22, 24, 28);
+        return Color.WHITE;
+    }
+
     private int dp(float value) {
         return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void attachPressFeedback(View view) {
+        view.setOnTouchListener((v, event) -> {
+            if (!v.isEnabled()) return false;
+
+            int action = event.getActionMasked();
+            if (action == MotionEvent.ACTION_DOWN) {
+                v.animate().scaleX(0.97f).scaleY(0.97f).alpha(0.86f).setDuration(80).start();
+            } else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+                v.animate().scaleX(1f).scaleY(1f).alpha(1f).setDuration(120).start();
+            }
+            return false;
+        });
     }
 
     @SuppressLint("MissingPermission")

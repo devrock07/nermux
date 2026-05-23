@@ -218,11 +218,19 @@
                         android:layout_marginStart="8dp"
                         android:background="@drawable/nermux_selection_rail" />
 
+                    <View
+                        android:id="@+id/workspace_editor_dirty_indicator"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_marginStart="10dp"
+                        android:background="@drawable/nermux_dirty_dot_background"
+                        android:visibility="gone" />
+
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/workspace_editor_title"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="10dp"
+                        android:layout_marginStart="8dp"
                         android:layout_marginEnd="10dp"
                         android:layout_weight="1"
                         android:ellipsize="middle"
@@ -231,6 +239,17 @@
                         android:textColor="@color/nermux_text_primary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/workspace_find_button"
+                        android:layout_width="34dp"
+                        android:layout_height="34dp"
+                        android:layout_marginEnd="8dp"
+                        android:background="@drawable/nermux_compact_button_background"
+                        android:contentDescription="@string/action_find"
+                        android:padding="9dp"
+                        android:src="@drawable/ic_search"
+                        app:tint="@color/nermux_text_secondary" />
 
                     <ImageButton
                         android:id="@+id/workspace_save_button"

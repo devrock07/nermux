@@ -10,6 +10,8 @@ import android.system.Os;
 import android.util.Pair;
 import android.view.WindowManager;
 
+import androidx.annotation.Nullable;
+
 import com.termux.R;
 import com.termux.shared.file.FileUtils;
 import com.termux.shared.termux.crash.TermuxCrashUtils;
@@ -70,8 +72,18 @@ final class TermuxInstaller {
     private static final String TERMUX_BOOTSTRAP_SECOND_STAGE_FALLBACK_SCRIPT_PATH =
         TERMUX_PREFIX_DIR_PATH + "/etc/profile.d/01-termux-bootstrap-second-stage-fallback.sh";
 
+    interface BootstrapProgressListener {
+        void onProgress(String message);
+    }
+
     /** Performs bootstrap setup if necessary. */
     static void setupBootstrapIfNeeded(final Activity activity, final Runnable whenDone) {
+        setupBootstrapIfNeeded(activity, whenDone, null);
+    }
+
+    /** Performs bootstrap setup if necessary and reports progress to a custom first-run surface. */
+    static void setupBootstrapIfNeeded(final Activity activity, final Runnable whenDone,
+                                       @Nullable final BootstrapProgressListener progressListener) {
         String bootstrapErrorMessage;
         Error filesDirectoryAccessibleError;
 
@@ -117,6 +129,7 @@ final class TermuxInstaller {
                 Logger.logInfo(LOG_TAG, "The termux prefix directory \"" + TERMUX_PREFIX_DIR_PATH + "\" exists but is empty or only contains specific unimportant files.");
             } else {
                 writeNermuxMotdSafely();
+                notifyBootstrapProgress(activity, progressListener, "Runtime ready");
                 whenDone.run();
                 return;
             }
@@ -124,7 +137,10 @@ final class TermuxInstaller {
             Logger.logInfo(LOG_TAG, "The termux prefix directory \"" + TERMUX_PREFIX_DIR_PATH + "\" does not exist but another file exists at its destination.");
         }
 
-        final ProgressDialog progress = ProgressDialog.show(activity, null, activity.getString(R.string.bootstrap_installer_body), true, false);
+        notifyBootstrapProgress(activity, progressListener, "Installing runtime files");
+        final ProgressDialog progress = progressListener == null
+            ? ProgressDialog.show(activity, null, activity.getString(R.string.bootstrap_installer_body), true, false)
+            : null;
         new Thread() {
             @Override
             public void run() {
@@ -134,6 +150,7 @@ final class TermuxInstaller {
                     Error error;
 
                     // Delete prefix staging directory or any file at its destination
+                    notifyBootstrapProgress(activity, progressListener, "Clearing old runtime folders");
                     error = FileUtils.deleteFile("termux prefix staging directory", TERMUX_STAGING_PREFIX_DIR_PATH, true);
                     if (error != null) {
                         showBootstrapErrorDialog(activity, whenDone, Error.getErrorMarkdownString(error));
@@ -148,6 +165,7 @@ final class TermuxInstaller {
                     }
 
                     // Create prefix staging directory if it does not already exist and set required permissions
+                    notifyBootstrapProgress(activity, progressListener, "Creating runtime folders");
                     error = TermuxFileUtils.isTermuxPrefixStagingDirectoryAccessible(true, true);
                     if (error != null) {
                         showBootstrapErrorDialog(activity, whenDone, Error.getErrorMarkdownString(error));
@@ -162,6 +180,7 @@ final class TermuxInstaller {
                     }
 
                     Logger.logInfo(LOG_TAG, "Extracting bootstrap zip to prefix staging directory \"" + TERMUX_STAGING_PREFIX_DIR_PATH + "\".");
+                    notifyBootstrapProgress(activity, progressListener, "Extracting packages");
 
                     final byte[] buffer = new byte[8096];
                     final List<Pair<String, String>> symlinks = new ArrayList<>(50);
@@ -216,11 +235,13 @@ final class TermuxInstaller {
 
                     if (symlinks.isEmpty())
                         throw new RuntimeException("No SYMLINKS.txt encountered");
+                    notifyBootstrapProgress(activity, progressListener, "Linking runtime tools");
                     for (Pair<String, String> symlink : symlinks) {
                         Os.symlink(symlink.first, symlink.second);
                     }
 
                     Logger.logInfo(LOG_TAG, "Moving termux prefix staging to prefix directory.");
+                    notifyBootstrapProgress(activity, progressListener, "Finalizing shell");
 
                     if (!TERMUX_STAGING_PREFIX_DIR.renameTo(TERMUX_PREFIX_DIR)) {
                         throw new RuntimeException("Moving termux prefix staging to prefix directory failed");
@@ -234,22 +255,31 @@ final class TermuxInstaller {
                     removeBootstrapSecondStageFallbackScriptSafely();
                     writeNermuxMotdSafely();
 
+                    notifyBootstrapProgress(activity, progressListener, "Runtime ready");
                     activity.runOnUiThread(whenDone);
 
                 } catch (final Exception e) {
                     showBootstrapErrorDialog(activity, whenDone, Logger.getStackTracesMarkdownString(null, Logger.getStackTracesStringArray(e)));
 
                 } finally {
-                    activity.runOnUiThread(() -> {
-                        try {
-                            progress.dismiss();
-                        } catch (RuntimeException e) {
-                            // Activity already dismissed - ignore.
-                        }
-                    });
+                    if (progress != null) {
+                        activity.runOnUiThread(() -> {
+                            try {
+                                progress.dismiss();
+                            } catch (RuntimeException e) {
+                                // Activity already dismissed - ignore.
+                            }
+                        });
+                    }
                 }
             }
         }.start();
+    }
+
+    private static void notifyBootstrapProgress(Activity activity, @Nullable BootstrapProgressListener progressListener,
+                                                String message) {
+        if (progressListener == null) return;
+        activity.runOnUiThread(() -> progressListener.onProgress(message));
     }
 
     public static void showBootstrapErrorDialog(Activity activity, Runnable whenDone, String message) {

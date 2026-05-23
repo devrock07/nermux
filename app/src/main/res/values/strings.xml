@@ -55,6 +55,7 @@
     <string name="action_close_workspace">Close workspace</string>
     <string name="action_close_editor">Close editor</string>
     <string name="action_save_file">Save file</string>
+    <string name="action_find">Find</string>
     <string name="action_file_actions">File actions</string>
     <string name="action_terminal_here">Terminal here</string>
     <string name="action_go_up">Go up</string>
@@ -73,6 +74,8 @@
     <string name="title_confirm_delete">Delete item?</string>
     <string name="msg_confirm_delete">This cannot be undone.</string>
     <string name="title_discard_editor_changes">Discard changes?</string>
+    <string name="title_find_in_file">Find in file</string>
+    <string name="hint_find_in_file">Text to find</string>
     <string name="msg_discard_editor_changes">Unsaved edits will be lost.</string>
     <string name="error_workspace_unavailable">Workspace is unavailable.</string>
     <string name="error_invalid_name">Use a name without slashes.</string>
@@ -82,6 +85,7 @@
     <string name="error_file_too_large">This file is too large for the quick editor.</string>
     <string name="error_selected_folder_not_supported">Pick a folder from internal shared storage so Nermux can run it in terminal.</string>
     <string name="msg_file_saved">Saved</string>
+    <string name="msg_no_match">No match found</string>
     <string name="msg_folder_opened">Folder opened</string>
     <string name="msg_terminal_started">Terminal opened</string>
     <string name="msg_power_command_started">Command opened in terminal</string>

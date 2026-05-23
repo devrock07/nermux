@@ -23,8 +23,11 @@ public abstract class NermuxPreferenceFragment extends PreferenceFragmentCompat 
         listView.setBackgroundColor(Color.TRANSPARENT);
         listView.setClipToPadding(false);
         listView.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        listView.setPadding(dp(6), dp(8), dp(6), dp(22));
+        listView.setPadding(dp(8), dp(10), dp(8), dp(24));
         listView.setItemAnimator(null);
+        listView.setAlpha(0f);
+        listView.setTranslationY(dp(8));
+        listView.animate().alpha(1f).translationY(0f).setDuration(160).start();
     }
 
     private int dp(int value) {

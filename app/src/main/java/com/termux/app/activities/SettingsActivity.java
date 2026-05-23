@@ -6,6 +6,7 @@ import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 
@@ -50,6 +51,15 @@ public class SettingsActivity extends AppCompatActivity {
 
         AppCompatActivityUtils.setToolbar(this, com.termux.shared.R.id.toolbar);
         AppCompatActivityUtils.setShowBackButtonInActionBar(this, true);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(R.string.action_open_settings);
+
+        Toolbar toolbar = findViewById(com.termux.shared.R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setBackgroundResource(R.drawable.nermux_workspace_header_background);
+            toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.nermux_text_primary));
+            toolbar.setSubtitleTextColor(ContextCompat.getColor(this, R.color.nermux_text_secondary));
+        }
     }
 
     @Override

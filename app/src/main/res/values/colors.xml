@@ -22,7 +22,7 @@
     <color name="nermux_accent_pressed">#334FC1FF</color>
     <color name="nermux_accent_green">#4EC9B0</color>
     <color name="nermux_accent_purple">#C586C0</color>
-    <color name="nermux_accent_yellow">#DCDCAA</color>
+    <color name="nermux_accent_yellow">#FFD166</color>
     <color name="nermux_drawer_scrim">#B3000000</color>
     <color name="nermux_extra_key_surface">#E8202124</color>
     <color name="nermux_extra_key_surface_active">#CC123A4A</color>

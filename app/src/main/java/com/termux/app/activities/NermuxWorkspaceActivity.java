@@ -66,11 +66,13 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
     private TextView mItemCountView;
     private ListView mFileListView;
     private View mEditorContainer;
+    private View mEditorDirtyIndicator;
     private TextView mEditorTitleView;
     private TextView mLineNumbersView;
     private TextView mEditorStatusView;
     private EditText mEditorView;
     private WorkspaceFileAdapter mAdapter;
+    private String mLastFindQuery;
 
     public static Intent newInstance(@NonNull Context context, @Nullable String startDirectory) {
         Intent intent = new Intent(context, NermuxWorkspaceActivity.class);
@@ -95,6 +97,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         mItemCountView = findViewById(R.id.workspace_item_count);
         mFileListView = findViewById(R.id.workspace_file_list);
         mEditorContainer = findViewById(R.id.workspace_editor_container);
+        mEditorDirtyIndicator = findViewById(R.id.workspace_editor_dirty_indicator);
         mEditorTitleView = findViewById(R.id.workspace_editor_title);
         mLineNumbersView = findViewById(R.id.workspace_line_numbers);
         mEditorStatusView = findViewById(R.id.workspace_editor_status);
@@ -149,6 +152,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         findViewById(R.id.workspace_new_file_button).setOnClickListener(v -> showCreateDialog(false));
         findViewById(R.id.workspace_new_folder_button).setOnClickListener(v -> showCreateDialog(true));
         findViewById(R.id.workspace_editor_close_button).setOnClickListener(v -> closeEditorWithPrompt());
+        findViewById(R.id.workspace_find_button).setOnClickListener(v -> showFindDialog());
         findViewById(R.id.workspace_save_button).setOnClickListener(v -> saveEditor());
 
         File startDir = getStartDirectory();
@@ -279,7 +283,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
 
         mEditingFile = file;
         mOriginalEditorText = new String(bytes, StandardCharsets.UTF_8);
-        mEditorTitleView.setText(file.getName());
+        updateEditorTitle();
         mEditorView.setText(mOriginalEditorText);
         mEditorView.setSelection(0);
         mEditorContainer.setAlpha(0f);
@@ -311,6 +315,70 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         }
     }
 
+    private void showFindDialog() {
+        if (mEditingFile == null) return;
+
+        EditText input = new EditText(this);
+        input.setSingleLine(true);
+        input.setHint(R.string.hint_find_in_file);
+        input.setText(mLastFindQuery == null ? "" : mLastFindQuery);
+        input.setSelectAllOnFocus(true);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+            .setTitle(R.string.title_find_in_file)
+            .setView(input)
+            .setPositiveButton(R.string.action_find, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .create();
+
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String query = input.getText().toString();
+            if (TextUtils.isEmpty(query.trim())) return;
+
+            mLastFindQuery = query;
+            if (selectNextMatch(query)) {
+                dialog.dismiss();
+            } else {
+                showToast(R.string.msg_no_match);
+            }
+        }));
+
+        dialog.show();
+        input.requestFocus();
+        input.post(() -> {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            if (inputMethodManager != null)
+                inputMethodManager.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT);
+        });
+    }
+
+    private boolean selectNextMatch(@NonNull String query) {
+        String editorText = mEditorView.getText().toString();
+        if (editorText.isEmpty()) return false;
+
+        String haystack = editorText.toLowerCase(Locale.ROOT);
+        String needle = query.toLowerCase(Locale.ROOT);
+        int start = Math.max(0, mEditorView.getSelectionEnd());
+        int index = haystack.indexOf(needle, start);
+        if (index < 0 && start > 0)
+            index = haystack.indexOf(needle);
+        if (index < 0) return false;
+
+        mEditorView.requestFocus();
+        mEditorView.setSelection(index, Math.min(editorText.length(), index + query.length()));
+        final int matchIndex = index;
+        mEditorView.post(() -> {
+            if (mEditorView.getLayout() != null) {
+                int line = mEditorView.getLayout().getLineForOffset(matchIndex);
+                int y = Math.max(0, mEditorView.getLayout().getLineTop(line) - dp(36));
+                mEditorView.scrollTo(mEditorView.getScrollX(), y);
+            }
+            updateEditorStatus();
+        });
+        performHapticFeedback();
+        return true;
+    }
+
     private void closeEditorWithPrompt() {
         if (!hasEditorChanges()) {
             closeEditor();
@@ -337,6 +405,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
             mEditorView.setText("");
             mLineNumbersView.setText("");
             mEditorStatusView.setText("");
+            if (mEditorDirtyIndicator != null) mEditorDirtyIndicator.setVisibility(View.GONE);
         }).start();
     }
 
@@ -632,6 +701,10 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         Toast.makeText(this, messageRes, Toast.LENGTH_SHORT).show();
     }
 
+    private int dp(int value) {
+        return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
     private String formatMeta(File file) {
         String modified = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
             .format(new Date(file.lastModified()));
@@ -664,6 +737,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
         if (mEditorStatusView == null || mEditorView == null || mEditingFile == null) return;
 
         CharSequence text = mEditorView.getText();
+        boolean changed = hasEditorChanges();
         int cursor = Math.max(0, mEditorView.getSelectionStart());
         int textLength = text == null ? 0 : text.length();
         cursor = Math.min(cursor, textLength);
@@ -679,9 +753,19 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
             }
         }
 
-        String state = hasEditorChanges() ? "MODIFIED" : "SAVED";
+        updateEditorTitle();
+        if (mEditorDirtyIndicator != null)
+            mEditorDirtyIndicator.setVisibility(changed ? View.VISIBLE : View.GONE);
+
+        String state = changed ? "MODIFIED" : "SAVED";
         int byteCount = text == null ? 0 : text.toString().getBytes(StandardCharsets.UTF_8).length;
         mEditorStatusView.setText("Ln " + line + ", Col " + column + "   UTF-8   " + formatSize(byteCount) + "   " + state);
+    }
+
+    private void updateEditorTitle() {
+        if (mEditorTitleView == null || mEditingFile == null) return;
+        String suffix = hasEditorChanges() ? " *" : "";
+        mEditorTitleView.setText(mEditingFile.getName() + suffix);
     }
 
     private String formatSize(long size) {
