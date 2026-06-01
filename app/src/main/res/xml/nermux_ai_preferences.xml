@@ -10,33 +10,21 @@
             app:summary="@string/nermux_ai_setup_summary"
             app:selectable="false" />
 
-        <ListPreference
+        <Preference
             app:key="provider"
-            app:title="@string/nermux_ai_provider_title"
-            app:entries="@array/nermux_ai_provider_entries"
-            app:entryValues="@array/nermux_ai_provider_values"
-            app:defaultValue="openai" />
+            app:title="@string/nermux_ai_provider_title" />
 
-        <EditTextPreference
+        <Preference
             app:key="api_key"
-            app:title="@string/nermux_ai_api_key_title"
-            app:dialogTitle="@string/nermux_ai_api_key_title"
-            app:dialogMessage="@string/nermux_ai_api_key_dialog_message"
-            app:dialogLayout="@layout/nermux_preference_dialog_edittext" />
+            app:title="@string/nermux_ai_api_key_title" />
 
-        <EditTextPreference
+        <Preference
             app:key="model"
-            app:title="@string/nermux_ai_model_title"
-            app:dialogTitle="@string/nermux_ai_model_title"
-            app:dialogMessage="@string/nermux_ai_model_dialog_message"
-            app:dialogLayout="@layout/nermux_preference_dialog_edittext" />
+            app:title="@string/nermux_ai_model_title" />
 
-        <EditTextPreference
+        <Preference
             app:key="base_url"
-            app:title="@string/nermux_ai_base_url_title"
-            app:dialogTitle="@string/nermux_ai_base_url_title"
-            app:dialogMessage="@string/nermux_ai_base_url_dialog_message"
-            app:dialogLayout="@layout/nermux_preference_dialog_edittext" />
+            app:title="@string/nermux_ai_base_url_title" />
 
     </PreferenceCategory>
 
