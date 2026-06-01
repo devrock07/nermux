@@ -800,8 +800,6 @@ public class NermuxHomeActivity extends AppCompatActivity {
     }
 
     private int iconTintForAccent(@ColorRes int accent) {
-        if (accent == R.color.nermux_accent_yellow)
-            return color(R.color.nermux_terminal_background);
         return Color.WHITE;
     }
 
