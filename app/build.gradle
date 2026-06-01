@@ -12,13 +12,15 @@ ext {
     packageVariant = System.getenv("TERMUX_PACKAGE_VARIANT") ?: "apt-android-7" // Default: "apt-android-7"
 }
 
+def apkVersionTag = System.getenv("TERMUX_APK_VERSION_TAG") ?: ""
+def selectedPackageVariant = project.ext.packageVariant
+
 android {
-    namespace "com.termux"
+    namespace = "com.termux"
 
     compileSdkVersion project.properties.compileSdkVersion.toInteger()
     ndkVersion = System.getenv("JITPACK_NDK_VERSION") ?: project.properties.ndkVersion
     def appVersionName = System.getenv("TERMUX_APP_VERSION_NAME") ?: ""
-    def apkVersionTag = System.getenv("TERMUX_APK_VERSION_TAG") ?: ""
     def splitAPKsForDebugBuilds = System.getenv("TERMUX_SPLIT_APKS_FOR_DEBUG_BUILDS") ?: "1"
     def splitAPKsForReleaseBuilds = System.getenv("TERMUX_SPLIT_APKS_FOR_RELEASE_BUILDS") ?: "0" // F-Droid does not support split APKs #1904
     def releaseStoreFilePath = System.getenv("NERMUX_RELEASE_STORE_FILE")
@@ -78,11 +80,11 @@ android {
 
         splits {
             abi {
-                enable ((gradle.startParameter.taskNames.any { it.contains("Debug") } && splitAPKsForDebugBuilds == "1") ||
+                enable = ((gradle.startParameter.taskNames.any { it.contains("Debug") } && splitAPKsForDebugBuilds == "1") ||
                     (gradle.startParameter.taskNames.any { it.contains("Release") } && splitAPKsForReleaseBuilds == "1"))
                 reset ()
                 include 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
-                universalApk true
+                universalApk = true
             }
         }
     }
@@ -101,8 +103,8 @@ android {
     buildTypes {
         release {
             minifyEnabled true
-            shrinkResources false // Reproducible builds
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            shrinkResources = false // Reproducible builds
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             if (hasReleaseSigning) signingConfig signingConfigs.release
         }
 
@@ -122,7 +124,7 @@ android {
 
     compileOptions {
         // Flag to enable support for the new language APIs
-        coreLibraryDesugaringEnabled true
+        coreLibraryDesugaringEnabled = true
 
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -146,24 +148,26 @@ android {
 
     packagingOptions {
         jniLibs {
-            useLegacyPackaging true
-        }
-    }
-
-    applicationVariants.all { variant ->
-        variant.outputs.all { output ->
-            if (variant.buildType.name == "debug") {
-                def abi = output.getFilter(com.android.build.OutputFile.ABI)
-                outputFileName = new File("nermux-app_" + (apkVersionTag ? apkVersionTag : project.ext.packageVariant + "-" + "debug") + "_" + (abi ? abi : "universal") + ".apk")
-            } else if (variant.buildType.name == "release") {
-                def abi = output.getFilter(com.android.build.OutputFile.ABI)
-                outputFileName = new File("nermux-app_" + (apkVersionTag ? apkVersionTag : project.ext.packageVariant + "-" + "release") + "_" + (abi ? abi : "universal") + ".apk")
-            }
+            useLegacyPackaging = true
         }
     }
 
     buildFeatures {
-        buildConfig true
+        buildConfig = true
+    }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        if (variant.buildType != "debug" && variant.buildType != "release") return
+
+        variant.outputs.forEach { output ->
+            def abi = output.filters.find { filter ->
+                filter.filterType == com.android.build.api.variant.FilterConfiguration.FilterType.ABI
+            }?.identifier ?: "universal"
+            def tag = apkVersionTag ? apkVersionTag : selectedPackageVariant + "-" + variant.buildType
+            output.outputFileName.set("nermux-app_" + tag + "_" + abi + ".apk")
+        }
     }
 }
 
@@ -237,9 +241,9 @@ clean {
     }
 }
 
-task downloadBootstraps() {
+def downloadBootstrapsTask = tasks.register("downloadBootstraps") {
     doLast {
-        def packageVariant = project.ext.packageVariant
+        def packageVariant = selectedPackageVariant
         if (packageVariant == "apt-android-7") {
             def version = "2026.02.12-r1" + "%2B" + "apt.android-7"
             downloadBootstrap("aarch64", "ea2aeba8819e517db711f8c32369e89e7c52cee73e07930ff91185e1ab93f4f3", version)
@@ -258,8 +262,6 @@ task downloadBootstraps() {
     }
 }
 
-afterEvaluate {
-    android.applicationVariants.all { variant ->
-        variant.javaCompileProvider.get().dependsOn(downloadBootstraps)
-    }
+tasks.withType(org.gradle.api.tasks.compile.JavaCompile).configureEach {
+    dependsOn(downloadBootstrapsTask)
 }
