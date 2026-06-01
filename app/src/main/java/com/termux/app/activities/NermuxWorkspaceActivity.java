@@ -35,6 +35,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.termux.R;
+import com.termux.app.NermuxSystemBars;
 import com.termux.app.TermuxActivity;
 import com.termux.app.TermuxService;
 import com.termux.shared.shell.command.ExecutionCommand.ShellCreateMode;
@@ -96,6 +97,7 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        NermuxSystemBars.hideNavigationBar(this);
         setContentView(R.layout.activity_nermux_workspace);
 
         mRootDir = canonicalOrSelf(TermuxConstants.TERMUX_FILES_DIR);
@@ -170,6 +172,18 @@ public class NermuxWorkspaceActivity extends AppCompatActivity {
 
         File startDir = getStartDirectory();
         loadDirectory(startDir);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        NermuxSystemBars.hideNavigationBar(this);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) NermuxSystemBars.hideNavigationBar(this);
     }
 
     @Override

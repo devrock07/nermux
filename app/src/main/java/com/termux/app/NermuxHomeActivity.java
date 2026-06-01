@@ -72,6 +72,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        NermuxSystemBars.hideNavigationBar(this);
 
         Window window = getWindow();
         window.setStatusBarColor(color(R.color.nermux_terminal_background));
@@ -81,6 +82,18 @@ public class NermuxHomeActivity extends AppCompatActivity {
         renderCommands("");
 
         ensureBootstrap();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        NermuxSystemBars.hideNavigationBar(this);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) NermuxSystemBars.hideNavigationBar(this);
     }
 
     private View createContentView() {

@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.termux.app.NermuxSystemBars;
 import com.termux.shared.termux.TermuxConstants;
 
 /** Basic embedded browser for viewing help pages. */
@@ -23,6 +24,7 @@ public final class HelpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        NermuxSystemBars.hideNavigationBar(this);
 
         final RelativeLayout progressLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams lParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -63,6 +65,18 @@ public final class HelpActivity extends AppCompatActivity {
             }
         });
         mWebView.loadUrl(TermuxConstants.TERMUX_WIKI_URL);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        NermuxSystemBars.hideNavigationBar(this);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) NermuxSystemBars.hideNavigationBar(this);
     }
 
     @Override

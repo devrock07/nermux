@@ -274,6 +274,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         setActivityTheme();
 
         super.onCreate(savedInstanceState);
+        NermuxSystemBars.hideNavigationBar(this);
 
         setContentView(R.layout.activity_termux);
 
@@ -378,6 +379,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     @Override
     public void onResume() {
         super.onResume();
+        NermuxSystemBars.hideNavigationBar(this);
 
         Logger.logVerbose(LOG_TAG, "onResume");
 
@@ -397,6 +399,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         TermuxCrashUtils.notifyAppCrashFromCrashLogFile(this, LOG_TAG);
 
         mIsOnResumeAfterOnCreate = false;
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) NermuxSystemBars.hideNavigationBar(this);
     }
 
     @Override

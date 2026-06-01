@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.preference.Preference;
 
 import com.termux.R;
+import com.termux.app.NermuxSystemBars;
 import com.termux.app.fragments.settings.NermuxAiPreferencesFragment;
 import com.termux.app.fragments.settings.NermuxPreferenceFragment;
 import com.termux.shared.activities.ReportActivity;
@@ -39,6 +40,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        NermuxSystemBars.hideNavigationBar(this);
 
         AppCompatActivityUtils.setNightMode(this, NightMode.getAppNightMode().getName(), true);
 
@@ -68,6 +70,18 @@ public class SettingsActivity extends AppCompatActivity {
             toolbar.setTitleTextColor(ContextCompat.getColor(this, R.color.nermux_text_primary));
             toolbar.setSubtitleTextColor(ContextCompat.getColor(this, R.color.nermux_text_secondary));
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        NermuxSystemBars.hideNavigationBar(this);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) NermuxSystemBars.hideNavigationBar(this);
     }
 
     @Override
