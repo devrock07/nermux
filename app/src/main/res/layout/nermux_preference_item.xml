@@ -3,30 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clipToPadding="false"
-    android:minHeight="82dp"
+    android:minHeight="74dp"
     android:orientation="vertical"
-    android:paddingStart="14dp"
-    android:paddingTop="5dp"
-    android:paddingEnd="14dp"
-    android:paddingBottom="5dp">
+    android:paddingStart="16dp"
+    android:paddingTop="4dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="4dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/nermux_settings_item_background"
         android:gravity="center_vertical"
-        android:minHeight="72dp"
+        android:minHeight="66dp"
         android:orientation="horizontal"
         android:paddingStart="16dp"
-        android:paddingTop="11dp"
+        android:paddingTop="12dp"
         android:paddingEnd="14dp"
-        android:paddingBottom="11dp">
-
-        <View
-            android:layout_width="3dp"
-            android:layout_height="26dp"
-            android:layout_marginEnd="13dp"
-            android:background="@drawable/nermux_selection_rail" />
+        android:paddingBottom="12dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -42,7 +36,8 @@
                 android:includeFontPadding="false"
                 android:maxLines="2"
                 android:textColor="@color/nermux_text_primary"
-                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -54,7 +49,8 @@
                 android:includeFontPadding="false"
                 android:maxLines="3"
                 android:textColor="@color/nermux_text_secondary"
-                android:textSize="13sp" />
+                android:lineSpacingExtra="1dp"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <LinearLayout

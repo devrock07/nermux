@@ -94,11 +94,11 @@ public class NermuxHomeActivity extends AppCompatActivity {
 
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(dp(22), dp(42), dp(22), dp(28));
+        content.setPadding(dp(22), dp(36), dp(22), dp(28));
         scrollView.addView(content, new ScrollView.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         scrollView.setOnApplyWindowInsetsListener((view, insets) -> {
-            content.setPadding(dp(22), insets.getSystemWindowInsetTop() + dp(32), dp(22), dp(28));
+            content.setPadding(dp(22), insets.getSystemWindowInsetTop() + dp(24), dp(22), dp(28));
             return insets;
         });
 
@@ -131,7 +131,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(18), dp(16), dp(18), dp(18));
-        card.setBackground(round(Color.rgb(21, 25, 30), dp(24), color(R.color.nermux_outline), dp(1)));
+        card.setBackground(round(color(R.color.nermux_surface), dp(8), color(R.color.nermux_outline), dp(1)));
 
         LinearLayout hero = new LinearLayout(this);
         hero.setGravity(Gravity.CENTER_VERTICAL);
@@ -157,7 +157,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
         String[] labels = { "Files", "Folders", "Packages", "Ready" };
         for (String label : labels) {
             TextView step = text("- " + label, 12, R.color.nermux_text_muted, false);
-            step.setTypeface(Typeface.MONOSPACE);
+            step.setTypeface(monoTypeface(false));
             mBootstrapStepViews.add(step);
             steps.addView(step, blockParams(0, 4, 0, 0));
         }
@@ -184,37 +184,38 @@ public class NermuxHomeActivity extends AppCompatActivity {
         ImageButton palette = new ImageButton(this);
         palette.setImageResource(R.drawable.ic_search);
         palette.setColorFilter(color(R.color.nermux_text_primary));
-        palette.setBackground(round(Color.rgb(18, 22, 27), dp(19), color(R.color.nermux_outline), dp(1)));
+        palette.setBackground(round(color(R.color.nermux_surface_high), dp(8), color(R.color.nermux_outline), dp(1)));
         palette.setContentDescription(getString(R.string.action_command_palette));
         palette.setPadding(dp(10), dp(10), dp(10), dp(10));
         palette.setOnClickListener(v -> showCommandPalette());
         attachPressFeedback(palette);
-        LinearLayout.LayoutParams paletteParams = new LinearLayout.LayoutParams(dp(38), dp(38));
+        LinearLayout.LayoutParams paletteParams = new LinearLayout.LayoutParams(dp(42), dp(42));
         paletteParams.setMargins(0, 0, dp(8), 0);
         row.addView(palette, paletteParams);
 
         TextView shell = text("Shell", 14, R.color.nermux_accent_bright, true);
         shell.setGravity(Gravity.CENTER);
         shell.setIncludeFontPadding(false);
-        shell.setBackground(round(Color.rgb(18, 22, 27), dp(19), color(R.color.nermux_outline), dp(1)));
+        shell.setBackground(round(color(R.color.nermux_surface_high), dp(8), color(R.color.nermux_outline), dp(1)));
         shell.setOnClickListener(v -> openTerminal());
         attachPressFeedback(shell);
-        row.addView(shell, new LinearLayout.LayoutParams(dp(78), dp(38)));
+        row.addView(shell, new LinearLayout.LayoutParams(dp(82), dp(42)));
         return row;
     }
 
     private View createSearchBox() {
         mSearchInput = new EditText(this);
         mSearchInput.setSingleLine(true);
-        mSearchInput.setTextSize(15);
+        mSearchInput.setTextSize(14);
         mSearchInput.setTextColor(color(R.color.nermux_text_primary));
         mSearchInput.setHintTextColor(color(R.color.nermux_text_muted));
         mSearchInput.setHint("Search commands");
         mSearchInput.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
         mSearchInput.setInputType(android.text.InputType.TYPE_CLASS_TEXT);
+        mSearchInput.setTypeface(appTypeface(false));
         mSearchInput.setPadding(dp(14), 0, dp(14), 0);
-        mSearchInput.setMinHeight(dp(46));
-        mSearchInput.setBackground(round(color(R.color.nermux_surface_deep), dp(23), 0, 0));
+        mSearchInput.setMinHeight(dp(48));
+        mSearchInput.setBackground(round(color(R.color.nermux_surface_deep), dp(8), color(R.color.nermux_outline), dp(1)));
 
         Drawable searchIcon = ContextCompat.getDrawable(this, R.drawable.ic_search);
         if (searchIcon != null) {
@@ -247,7 +248,8 @@ public class NermuxHomeActivity extends AppCompatActivity {
         card.setGravity(Gravity.CENTER_VERTICAL);
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setPadding(dp(14), dp(12), dp(14), dp(12));
-        card.setBackground(round(Color.rgb(17, 21, 26), dp(24), 0, 0));
+        card.setMinimumHeight(dp(78));
+        card.setBackground(round(color(R.color.nermux_surface), dp(8), color(R.color.nermux_outline), dp(1)));
         card.setOnClickListener(v -> openTerminal());
         attachPressFeedback(card);
 
@@ -269,7 +271,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
             blockParams(0, 3, 0, 0));
         card.addView(copy, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
 
-        TextView arrow = text(">", 25, R.color.nermux_text_muted, false);
+        TextView arrow = text(">", 23, R.color.nermux_text_muted, false);
         arrow.setGravity(Gravity.CENTER);
         card.addView(arrow, new LinearLayout.LayoutParams(dp(28), dp(48)));
         return card;
@@ -299,7 +301,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
         if (visibleSections == 0) {
             TextView empty = text("No commands found", 15, R.color.nermux_text_secondary, true);
             empty.setGravity(Gravity.CENTER);
-            empty.setBackground(round(Color.rgb(18, 22, 27), dp(20), color(R.color.nermux_outline), dp(1)));
+            empty.setBackground(round(color(R.color.nermux_surface), dp(8), color(R.color.nermux_outline), dp(1)));
             empty.setPadding(dp(18), dp(26), dp(18), dp(26));
             mCommandContainer.addView(empty, blockParams(0, 18, 0, 0));
         }
@@ -326,7 +328,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
         LinearLayout group = new LinearLayout(this);
         group.setOrientation(LinearLayout.VERTICAL);
         group.setClipToOutline(true);
-        group.setBackground(round(Color.rgb(18, 22, 27), dp(20), Color.rgb(36, 42, 48), dp(1)));
+        group.setBackground(round(color(R.color.nermux_surface), dp(8), color(R.color.nermux_outline), dp(1)));
 
         for (int i = 0; i < visibleItems.size(); i++) {
             CommandItem item = visibleItems.get(i);
@@ -346,8 +348,8 @@ public class NermuxHomeActivity extends AppCompatActivity {
         LinearLayout row = new LinearLayout(this);
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setMinimumHeight(dp(66));
-        row.setPadding(dp(16), dp(10), dp(10), dp(10));
+        row.setMinimumHeight(dp(68));
+        row.setPadding(dp(16), dp(10), dp(12), dp(10));
         row.setOnClickListener(v -> copyCommand(item.command));
         row.setOnLongClickListener(v -> {
             showRunSheet(item);
@@ -359,7 +361,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
         labels.setOrientation(LinearLayout.VERTICAL);
 
         TextView command = text(item.command, 14, R.color.nermux_text_primary, true);
-        command.setTypeface(Typeface.create(Typeface.MONOSPACE, Typeface.BOLD));
+        command.setTypeface(monoTypeface(true));
         labels.addView(command);
         labels.addView(text(item.subtitle, 12, R.color.nermux_text_secondary, false),
             blockParams(0, 5, 0, 0));
@@ -383,17 +385,17 @@ public class NermuxHomeActivity extends AppCompatActivity {
             return true;
         });
         attachPressFeedback(run);
-        row.addView(run, new LinearLayout.LayoutParams(dp(38), dp(38)));
+        row.addView(run, new LinearLayout.LayoutParams(dp(42), dp(42)));
 
         ImageButton copy = new ImageButton(this);
         copy.setImageResource(R.drawable.ic_content_copy);
         copy.setColorFilter(color(R.color.nermux_text_muted));
-        copy.setBackground(round(Color.TRANSPARENT, dp(16), 0, 0));
+        copy.setBackground(round(Color.TRANSPARENT, dp(8), 0, 0));
         copy.setPadding(dp(10), dp(10), dp(10), dp(10));
         copy.setContentDescription("Copy command");
         copy.setOnClickListener(v -> copyCommand(item.command));
         attachPressFeedback(copy);
-        LinearLayout.LayoutParams copyParams = new LinearLayout.LayoutParams(dp(38), dp(38));
+        LinearLayout.LayoutParams copyParams = new LinearLayout.LayoutParams(dp(42), dp(42));
         copyParams.setMargins(dp(8), 0, 0, 0);
         row.addView(copy, copyParams);
 
@@ -421,14 +423,14 @@ public class NermuxHomeActivity extends AppCompatActivity {
 
     private CommandStatus statusForItem(CommandItem item) {
         if (!mBootstrapReady)
-            return new CommandStatus("CHECK", R.color.nermux_text_secondary, Color.rgb(24, 27, 31), color(R.color.nermux_outline));
+            return new CommandStatus("CHECK", R.color.nermux_text_secondary, color(R.color.nermux_surface_deep), color(R.color.nermux_outline));
         if (item.probeTool == null)
-            return new CommandStatus("READY", R.color.nermux_text_secondary, Color.rgb(24, 27, 31), color(R.color.nermux_outline));
+            return new CommandStatus("READY", R.color.nermux_text_secondary, color(R.color.nermux_surface_deep), color(R.color.nermux_outline));
 
         boolean installed = new File(TermuxConstants.TERMUX_BIN_PREFIX_DIR, item.probeTool).canExecute();
         if (installed)
-            return new CommandStatus("OK", R.color.nermux_accent_green, Color.rgb(19, 34, 31), color(R.color.nermux_accent_green));
-        return new CommandStatus("MISS", R.color.nermux_accent_yellow, Color.rgb(38, 32, 18), color(R.color.nermux_accent_yellow));
+            return new CommandStatus("OK", R.color.nermux_accent_green, color(R.color.nermux_surface_deep), color(R.color.nermux_accent_green));
+        return new CommandStatus("MISS", R.color.nermux_accent_yellow, color(R.color.nermux_surface_deep), color(R.color.nermux_accent_yellow));
     }
 
     private void showRunSheet(CommandItem item) {
@@ -439,9 +441,9 @@ public class NermuxHomeActivity extends AppCompatActivity {
             blockParams(0, 5, 0, 0));
 
         TextView command = text(item.command, 14, R.color.nermux_accent_green, true);
-        command.setTypeface(Typeface.MONOSPACE);
+        command.setTypeface(monoTypeface(true));
         command.setPadding(dp(14), dp(12), dp(14), dp(12));
-        command.setBackground(round(color(R.color.nermux_surface_deep), dp(12), color(R.color.nermux_outline), dp(1)));
+        command.setBackground(round(color(R.color.nermux_surface_deep), dp(8), color(R.color.nermux_outline), dp(1)));
         sheet.addView(command, blockParams(0, 16, 0, 0));
 
         sheet.addView(sheetAction("Run now", "Open a new shell session and execute it.", R.drawable.ic_play_arrow,
@@ -479,7 +481,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
         hintPill.setGravity(Gravity.CENTER);
         hintPill.setIncludeFontPadding(false);
         hintPill.setPadding(dp(9), 0, dp(9), 0);
-        hintPill.setBackground(round(Color.rgb(24, 27, 31), dp(12), color(R.color.nermux_outline), dp(1)));
+        hintPill.setBackground(round(color(R.color.nermux_surface_deep), dp(8), color(R.color.nermux_outline), dp(1)));
         header.addView(hintPill, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(24)));
         palette.addView(header);
 
@@ -488,7 +490,8 @@ public class NermuxHomeActivity extends AppCompatActivity {
         input.setTextColor(color(R.color.nermux_text_primary));
         input.setHintTextColor(color(R.color.nermux_text_muted));
         input.setHint("Search commands or screens");
-        input.setTextSize(15);
+        input.setTextSize(14);
+        input.setTypeface(appTypeface(false));
         input.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
         input.setPadding(dp(10), 0, 0, 0);
         input.setMinHeight(dp(48));
@@ -500,7 +503,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
         searchBar.setOrientation(LinearLayout.HORIZONTAL);
         searchBar.setPadding(dp(14), 0, dp(14), 0);
         searchBar.setMinimumHeight(dp(50));
-        searchBar.setBackground(round(Color.rgb(14, 17, 21), dp(16), color(R.color.nermux_outline_strong), dp(1)));
+        searchBar.setBackground(round(color(R.color.nermux_surface_deep), dp(8), color(R.color.nermux_outline_strong), dp(1)));
 
         ImageView searchIcon = new ImageView(this);
         searchIcon.setImageResource(R.drawable.ic_search);
@@ -571,7 +574,8 @@ public class NermuxHomeActivity extends AppCompatActivity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setOrientation(LinearLayout.HORIZONTAL);
         row.setPadding(dp(13), dp(10), dp(13), dp(10));
-        row.setBackground(round(color(R.color.nermux_surface_deep), dp(14), color(R.color.nermux_outline), dp(1)));
+        row.setMinimumHeight(dp(58));
+        row.setBackground(round(color(R.color.nermux_surface_deep), dp(8), color(R.color.nermux_outline), dp(1)));
         row.setOnClickListener(v -> {
             performHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
             action.run();
@@ -582,7 +586,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
         icon.setImageResource(iconRes);
         icon.setColorFilter(color(R.color.nermux_accent_bright));
         icon.setPadding(dp(7), dp(7), dp(7), dp(7));
-        icon.setBackground(oval(Color.rgb(26, 37, 48)));
+        icon.setBackground(oval(color(R.color.nermux_accent_soft)));
         row.addView(icon, new LinearLayout.LayoutParams(dp(34), dp(34)));
 
         LinearLayout copy = new LinearLayout(this);
@@ -601,7 +605,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
         LinearLayout sheet = new LinearLayout(this);
         sheet.setOrientation(LinearLayout.VERTICAL);
         sheet.setPadding(dp(18), dp(20), dp(18), dp(20));
-        sheet.setBackground(round(Color.rgb(21, 24, 29), dp(22), color(R.color.nermux_outline), dp(1)));
+        sheet.setBackground(round(color(R.color.nermux_surface), dp(8), color(R.color.nermux_outline), dp(1)));
         return sheet;
     }
 
@@ -613,9 +617,9 @@ public class NermuxHomeActivity extends AppCompatActivity {
         window.setGravity(gravity);
         WindowManager.LayoutParams params = new WindowManager.LayoutParams();
         params.copyFrom(window.getAttributes());
-        params.width = getResources().getDisplayMetrics().widthPixels - dp(24);
+        params.width = getResources().getDisplayMetrics().widthPixels - dp(28);
         params.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        params.y = gravity == Gravity.TOP ? dp(18) : dp(12);
+        params.y = gravity == Gravity.TOP ? dp(56) : dp(14);
         window.setAttributes(params);
     }
 
@@ -737,7 +741,7 @@ public class NermuxHomeActivity extends AppCompatActivity {
 
     private View divider() {
         View view = new View(this);
-        view.setBackgroundColor(Color.rgb(35, 40, 46));
+        view.setBackgroundColor(color(R.color.nermux_outline));
         view.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)));
         return view;
     }
@@ -753,10 +757,19 @@ public class NermuxHomeActivity extends AppCompatActivity {
         text.setText(value);
         text.setTextSize(sp);
         text.setTextColor(color(color));
-        text.setIncludeFontPadding(true);
+        text.setIncludeFontPadding(false);
         text.setGravity(Gravity.START);
-        if (bold) text.setTypeface(Typeface.DEFAULT_BOLD);
+        text.setTypeface(appTypeface(bold));
+        text.setLineSpacing(dp(1), 1.0f);
         return text;
+    }
+
+    private Typeface appTypeface(boolean bold) {
+        return Typeface.create(bold ? "sans-serif-medium" : "sans-serif", bold ? Typeface.BOLD : Typeface.NORMAL);
+    }
+
+    private Typeface monoTypeface(boolean bold) {
+        return Typeface.create("monospace", bold ? Typeface.BOLD : Typeface.NORMAL);
     }
 
     private LinearLayout.LayoutParams blockParams(int left, int top, int right, int bottom) {
@@ -787,6 +800,8 @@ public class NermuxHomeActivity extends AppCompatActivity {
     }
 
     private int iconTintForAccent(@ColorRes int accent) {
+        if (accent == R.color.nermux_accent_yellow)
+            return color(R.color.nermux_terminal_background);
         return Color.WHITE;
     }
 

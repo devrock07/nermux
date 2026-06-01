@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="nermux_space_1">4dp</dimen>
+    <dimen name="nermux_space_2">8dp</dimen>
+    <dimen name="nermux_space_3">12dp</dimen>
+    <dimen name="nermux_space_4">16dp</dimen>
+    <dimen name="nermux_space_5">20dp</dimen>
+    <dimen name="nermux_touch_min">44dp</dimen>
+    <dimen name="nermux_radius_control">8dp</dimen>
+    <dimen name="nermux_radius_pill">999dp</dimen>
+    <dimen name="nermux_stroke_hairline">1dp</dimen>
+</resources>

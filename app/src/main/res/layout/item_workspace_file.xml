@@ -11,7 +11,7 @@
     <LinearLayout
         android:id="@+id/workspace_file_row"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="54dp"
         android:background="@drawable/nermux_file_row_background"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -42,6 +42,7 @@
                 android:includeFontPadding="false"
                 android:maxLines="1"
                 android:textColor="@color/nermux_text_primary"
+                android:fontFamily="sans-serif-medium"
                 android:textSize="13sp" />
 
             <com.google.android.material.textview.MaterialTextView
@@ -73,8 +74,8 @@
 
         <ImageButton
             android:id="@+id/workspace_file_more"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="@drawable/nermux_compact_button_background"
             android:contentDescription="@string/action_file_actions"
             android:focusable="false"

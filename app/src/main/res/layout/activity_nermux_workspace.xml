@@ -8,7 +8,7 @@
     android:orientation="horizontal">
 
     <LinearLayout
-        android:layout_width="54dp"
+        android:layout_width="58dp"
         android:layout_height="match_parent"
         android:background="@drawable/nermux_activity_rail_background"
         android:gravity="center_horizontal"
@@ -18,8 +18,8 @@
 
         <ImageButton
             android:id="@+id/workspace_close_button"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="@dimen/nermux_touch_min"
+            android:layout_height="@dimen/nermux_touch_min"
             android:background="@drawable/nermux_compact_button_background"
             android:contentDescription="@string/action_close_workspace"
             android:padding="12dp"
@@ -28,8 +28,8 @@
 
         <ImageButton
             android:id="@+id/workspace_terminal_button"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="@dimen/nermux_touch_min"
+            android:layout_height="@dimen/nermux_touch_min"
             android:layout_marginTop="10dp"
             android:background="@drawable/nermux_primary_icon_button_background"
             android:contentDescription="@string/action_terminal_here"
@@ -39,8 +39,8 @@
 
         <ImageButton
             android:id="@+id/workspace_pick_folder_button"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="@dimen/nermux_touch_min"
+            android:layout_height="@dimen/nermux_touch_min"
             android:layout_marginTop="10dp"
             android:background="@drawable/nermux_compact_button_background"
             android:contentDescription="@string/action_choose_folder"
@@ -50,8 +50,8 @@
 
         <ImageButton
             android:id="@+id/workspace_new_file_button"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="@dimen/nermux_touch_min"
+            android:layout_height="@dimen/nermux_touch_min"
             android:layout_marginTop="10dp"
             android:background="@drawable/nermux_compact_button_background"
             android:contentDescription="@string/action_new_file"
@@ -61,8 +61,8 @@
 
         <ImageButton
             android:id="@+id/workspace_new_folder_button"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="@dimen/nermux_touch_min"
+            android:layout_height="@dimen/nermux_touch_min"
             android:layout_marginTop="10dp"
             android:background="@drawable/nermux_compact_button_background"
             android:contentDescription="@string/action_new_folder"
@@ -77,8 +77,8 @@
 
         <ImageButton
             android:id="@+id/workspace_up_button"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="@dimen/nermux_touch_min"
+            android:layout_height="@dimen/nermux_touch_min"
             android:layout_marginBottom="10dp"
             android:background="@drawable/nermux_compact_button_background"
             android:contentDescription="@string/action_go_up"
@@ -88,8 +88,8 @@
 
         <ImageButton
             android:id="@+id/workspace_home_button"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="@dimen/nermux_touch_min"
+            android:layout_height="@dimen/nermux_touch_min"
             android:layout_marginBottom="10dp"
             android:background="@drawable/nermux_compact_button_background"
             android:contentDescription="@string/action_home"
@@ -99,8 +99,8 @@
 
         <ImageButton
             android:id="@+id/workspace_refresh_button"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="@dimen/nermux_touch_min"
+            android:layout_height="@dimen/nermux_touch_min"
             android:background="@drawable/nermux_compact_button_background"
             android:contentDescription="@string/action_refresh"
             android:padding="12dp"
@@ -136,7 +136,9 @@
                     android:includeFontPadding="false"
                     android:text="EXPLORER"
                     android:textColor="@color/nermux_text_secondary"
-                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.06"
+                    android:textSize="11sp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.textview.MaterialTextView
@@ -181,7 +183,7 @@
                 android:dividerHeight="0dp"
                 android:listSelector="@android:color/transparent"
                 android:paddingStart="8dp"
-                android:paddingTop="8dp"
+                android:paddingTop="10dp"
                 android:paddingEnd="8dp"
                 android:paddingBottom="10dp" />
 
@@ -195,7 +197,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="42dp"
+                    android:layout_height="48dp"
                     android:background="@drawable/nermux_workspace_header_background"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
@@ -204,8 +206,8 @@
 
                     <ImageButton
                         android:id="@+id/workspace_editor_close_button"
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:background="@drawable/nermux_compact_button_background"
                         android:contentDescription="@string/action_close_editor"
                         android:padding="9dp"
@@ -247,8 +249,8 @@
 
                     <ImageButton
                         android:id="@+id/workspace_find_button"
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/nermux_compact_button_background"
                         android:contentDescription="@string/action_find"
@@ -258,8 +260,8 @@
 
                     <ImageButton
                         android:id="@+id/workspace_save_button"
-                        android:layout_width="34dp"
-                        android:layout_height="34dp"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
                         android:background="@drawable/nermux_primary_icon_button_background"
                         android:contentDescription="@string/action_save_file"
                         android:padding="9dp"
@@ -293,6 +295,7 @@
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:background="@android:color/transparent"
+                        android:fontFamily="monospace"
                         android:gravity="top|start"
                         android:importantForAutofill="no"
                         android:inputType="textMultiLine|textNoSuggestions"
@@ -304,7 +307,7 @@
                         android:textColor="@color/nermux_text_primary"
                         android:textColorHighlight="@color/nermux_surface_pressed"
                         android:textCursorDrawable="@null"
-                        android:textSize="13sp" />
+                        android:textSize="14sp" />
                 </LinearLayout>
 
                 <com.google.android.material.textview.MaterialTextView

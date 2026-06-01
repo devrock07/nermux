@@ -1807,6 +1807,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         TextView previewText = buildAgentTextView(filePreview(file.content), 11, R.color.nermux_text_secondary, false);
         previewText.setTextIsSelectable(true);
+        previewText.setTypeface(android.graphics.Typeface.create("monospace", android.graphics.Typeface.NORMAL));
         LinearLayout.LayoutParams previewParams = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -1854,6 +1855,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         TextView commandText = buildAgentTextView(command, 12, R.color.nermux_text_primary, false);
         commandText.setTextIsSelectable(true);
+        commandText.setTypeface(android.graphics.Typeface.create("monospace", android.graphics.Typeface.NORMAL));
         LinearLayout.LayoutParams commandParams = new LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
@@ -1892,7 +1894,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         copyButton.setOnClickListener(v -> copyAgentMessage(text));
         attachPressMotion(copyButton);
 
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(118), dp(34));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(124), dp(38));
         params.topMargin = dp(10);
         card.addView(copyButton, params);
     }
@@ -1904,7 +1906,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         textView.setText(text);
         textView.setTextColor(ContextCompat.getColor(this, colorRes));
         textView.setTextSize(sp);
-        if (bold) textView.setTypeface(textView.getTypeface(), android.graphics.Typeface.BOLD);
+        textView.setTypeface(android.graphics.Typeface.create(bold ? "sans-serif-medium" : "sans-serif",
+            bold ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL));
         textView.setLineSpacing(dp(2), 1f);
         return textView;
     }

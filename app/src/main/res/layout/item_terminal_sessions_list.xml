@@ -10,7 +10,7 @@
     <LinearLayout
         android:id="@+id/session_row"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="68dp"
         android:background="@drawable/session_background_selected"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -51,6 +51,7 @@
                 android:includeFontPadding="false"
                 android:maxLines="1"
                 android:textColor="@color/nermux_text_primary"
+                android:fontFamily="sans-serif-medium"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
@@ -84,8 +85,8 @@
 
         <ImageButton
             android:id="@+id/close_session_button"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:background="@drawable/nermux_close_button_background"
             android:contentDescription="@string/action_close_session"
             android:focusable="false"
