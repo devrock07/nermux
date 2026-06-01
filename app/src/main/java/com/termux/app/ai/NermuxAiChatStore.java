@@ -10,11 +10,8 @@ import androidx.annotation.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public final class NermuxAiChatStore {
 
@@ -24,24 +21,13 @@ public final class NermuxAiChatStore {
     private static final String PREFS_NAME = "nermux_ai_chat";
     private static final String KEY_MESSAGES = "messages";
     private static final String KEY_DRAFT = "draft";
-    private static final String KEY_WORKSPACE_PATH = "workspace_path";
     private static final int MAX_MESSAGES = 80;
 
     private NermuxAiChatStore() {}
 
     @NonNull
     public static List<Message> loadMessages(@NonNull Context context) {
-        return loadMessages(context, loadWorkspacePath(context));
-    }
-
-    @NonNull
-    public static List<Message> loadMessages(@NonNull Context context, @Nullable String workspacePath) {
-        String key = scopedKey(KEY_MESSAGES, workspacePath);
-        String raw = prefs(context).getString(key, null);
-        if (raw == null && TextUtils.isEmpty(workspacePath))
-            raw = prefs(context).getString(KEY_MESSAGES, "[]");
-        if (raw == null) raw = "[]";
-
+        String raw = prefs(context).getString(KEY_MESSAGES, "[]");
         List<Message> messages = new ArrayList<>();
         try {
             JSONArray array = new JSONArray(raw);
@@ -52,82 +38,41 @@ public final class NermuxAiChatStore {
                 if (message != null) messages.add(message);
             }
         } catch (Exception ignored) {
-            clearMessages(context, workspacePath);
+            clearMessages(context);
         }
         return messages;
     }
 
     public static void appendMessage(@NonNull Context context, @NonNull Message message) {
-        appendMessage(context, loadWorkspacePath(context), message);
-    }
-
-    public static void appendMessage(@NonNull Context context, @Nullable String workspacePath, @NonNull Message message) {
-        List<Message> messages = loadMessages(context, workspacePath);
+        List<Message> messages = loadMessages(context);
         messages.add(message);
         trim(messages);
-        saveMessages(context, workspacePath, messages);
+        saveMessages(context, messages);
     }
 
     public static void clearMessages(@NonNull Context context) {
-        clearMessages(context, loadWorkspacePath(context));
-    }
-
-    public static void clearMessages(@NonNull Context context, @Nullable String workspacePath) {
-        SharedPreferences.Editor editor = prefs(context).edit().remove(scopedKey(KEY_MESSAGES, workspacePath));
-        if (TextUtils.isEmpty(workspacePath)) editor.remove(KEY_MESSAGES);
-        editor.apply();
+        prefs(context).edit().remove(KEY_MESSAGES).apply();
     }
 
     public static void saveDraft(@NonNull Context context, @Nullable String draft) {
-        saveDraft(context, loadWorkspacePath(context), draft);
-    }
-
-    public static void saveDraft(@NonNull Context context, @Nullable String workspacePath, @Nullable String draft) {
-        prefs(context).edit().putString(scopedKey(KEY_DRAFT, workspacePath), draft == null ? "" : draft).apply();
+        prefs(context).edit().putString(KEY_DRAFT, draft == null ? "" : draft).apply();
     }
 
     @NonNull
     public static String loadDraft(@NonNull Context context) {
-        return loadDraft(context, loadWorkspacePath(context));
-    }
-
-    @NonNull
-    public static String loadDraft(@NonNull Context context, @Nullable String workspacePath) {
-        String value = prefs(context).getString(scopedKey(KEY_DRAFT, workspacePath), null);
-        if (value == null && TextUtils.isEmpty(workspacePath))
-            value = prefs(context).getString(KEY_DRAFT, "");
-        return value == null ? "" : value;
+        return prefs(context).getString(KEY_DRAFT, "");
     }
 
     public static void clearDraft(@NonNull Context context) {
-        clearDraft(context, loadWorkspacePath(context));
+        prefs(context).edit().remove(KEY_DRAFT).apply();
     }
 
-    public static void clearDraft(@NonNull Context context, @Nullable String workspacePath) {
-        SharedPreferences.Editor editor = prefs(context).edit().remove(scopedKey(KEY_DRAFT, workspacePath));
-        if (TextUtils.isEmpty(workspacePath)) editor.remove(KEY_DRAFT);
-        editor.apply();
-    }
-
-    public static void saveWorkspacePath(@NonNull Context context, @Nullable String path) {
-        prefs(context).edit().putString(KEY_WORKSPACE_PATH, path == null ? "" : path).apply();
-    }
-
-    @NonNull
-    public static String loadWorkspacePath(@NonNull Context context) {
-        return prefs(context).getString(KEY_WORKSPACE_PATH, "");
-    }
-
-    public static void clearWorkspacePath(@NonNull Context context) {
-        prefs(context).edit().remove(KEY_WORKSPACE_PATH).apply();
-    }
-
-    private static void saveMessages(@NonNull Context context, @Nullable String workspacePath, @NonNull List<Message> messages) {
+    private static void saveMessages(@NonNull Context context, @NonNull List<Message> messages) {
         JSONArray array = new JSONArray();
         for (Message message : messages) {
             array.put(message.toJson());
         }
-        prefs(context).edit().putString(scopedKey(KEY_MESSAGES, workspacePath), array.toString()).apply();
+        prefs(context).edit().putString(KEY_MESSAGES, array.toString()).apply();
     }
 
     private static void trim(@NonNull List<Message> messages) {
@@ -137,27 +82,6 @@ public final class NermuxAiChatStore {
     @NonNull
     private static SharedPreferences prefs(@NonNull Context context) {
         return context.getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-    }
-
-    @NonNull
-    private static String scopedKey(@NonNull String prefix, @Nullable String workspacePath) {
-        if (TextUtils.isEmpty(workspacePath))
-            return prefix + "_workspace_none";
-        return prefix + "_workspace_" + sha256(workspacePath.trim());
-    }
-
-    @NonNull
-    private static String sha256(@NonNull String value) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] bytes = digest.digest(value.getBytes(StandardCharsets.UTF_8));
-            StringBuilder builder = new StringBuilder(bytes.length * 2);
-            for (byte current : bytes)
-                builder.append(String.format(Locale.US, "%02x", current & 0xff));
-            return builder.toString();
-        } catch (Exception e) {
-            return Integer.toHexString(value.hashCode());
-        }
     }
 
     public static final class Message {
