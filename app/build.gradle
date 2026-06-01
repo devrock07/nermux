@@ -15,6 +15,10 @@ ext {
 def apkVersionTag = System.getenv("TERMUX_APK_VERSION_TAG") ?: ""
 def selectedPackageVariant = project.ext.packageVariant
 
+configurations.configureEach {
+    exclude group: "androidx.profileinstaller", module: "profileinstaller"
+}
+
 android {
     namespace = "com.termux"
 
@@ -105,11 +109,12 @@ android {
             minifyEnabled true
             shrinkResources = false // Reproducible builds
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            if (hasReleaseSigning) signingConfig signingConfigs.release
+            if (hasReleaseSigning) signingConfig = signingConfigs.release
         }
 
         debug {
             // Use the Android Gradle Plugin generated debug keystore for local debug builds.
+            debuggable false
         }
     }
 

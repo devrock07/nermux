@@ -117,6 +117,8 @@ if [[ "$skip_gradle" -eq 0 ]]; then
 
   gradle_tasks=(
     ':app:lintDebug'
+    ':app:processDebugMainManifest'
+    ':app:processReleaseMainManifest'
     ':app:testDebugUnitTest'
     ':terminal-emulator:testDebugUnitTest'
     ':terminal-view:testDebugUnitTest'
@@ -129,6 +131,84 @@ if [[ "$skip_gradle" -eq 0 ]]; then
   fi
 
   ./gradlew "${gradle_tasks[@]}"
+fi
+
+if [[ "$skip_gradle" -eq 0 ]]; then
+  step "Merged manifest hardening check"
+
+  check_merged_manifest() {
+    local variant="$1"
+    local variant_title
+    case "$variant" in
+      debug) variant_title="Debug" ;;
+      release) variant_title="Release" ;;
+      *) echo "Unknown manifest variant: $variant" >&2; exit 2 ;;
+    esac
+
+    local manifest="app/build/intermediates/merged_manifest/$variant/process${variant_title}MainManifest/AndroidManifest.xml"
+    if [[ ! -f "$manifest" ]]; then
+      echo "Missing merged manifest: $manifest" >&2
+      exit 1
+    fi
+
+    python3 - "$manifest" "$variant" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+manifest_path, variant = sys.argv[1], sys.argv[2]
+android = "{http://schemas.android.com/apk/res/android}"
+
+def fail(message):
+    print(f"{manifest_path}: {message}", file=sys.stderr)
+    sys.exit(1)
+
+root = ET.parse(manifest_path).getroot()
+attr = lambda node, name: node.get(android + name) if node is not None else None
+
+forbidden_permissions = {
+    "android.permission.MANAGE_EXTERNAL_STORAGE",
+    "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
+    "android.permission.SYSTEM_ALERT_WINDOW",
+    "android.permission.READ_LOGS",
+    "android.permission.DUMP",
+    "android.permission.WRITE_SECURE_SETTINGS",
+    "android.permission.REQUEST_INSTALL_PACKAGES",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.PACKAGE_USAGE_STATS",
+    "com.android.alarm.permission.SET_ALARM",
+}
+
+permissions = {attr(node, "name") for node in root.findall("uses-permission")}
+found_permissions = sorted(forbidden_permissions & permissions)
+if found_permissions:
+    fail(f"forbidden permissions present in {variant}: {', '.join(found_permissions)}")
+
+if attr(root, "sharedUserId"):
+    fail(f"sharedUserId must not be present in {variant}")
+
+application = root.find("application")
+if application is None:
+    fail(f"application node missing in {variant}")
+
+for receiver_name in {
+    "androidx.profileinstaller.ProfileInstallReceiver",
+    "com.termux.app.event.SystemEventReceiver",
+}:
+    if any(attr(receiver, "name") == receiver_name for receiver in application.findall("receiver")):
+        fail(f"{receiver_name} must not be present in {variant}")
+
+for provider in application.findall("provider"):
+    provider_name = attr(provider, "name")
+    if provider_name == "com.termux.app.TermuxOpenReceiver$ContentProvider" and attr(provider, "exported") != "false":
+        fail(f"{provider_name} must not be exported in {variant}")
+for service in application.findall("service"):
+    if attr(service, "name") == "com.termux.app.RunCommandService" and attr(service, "exported") != "false":
+        fail(f"RunCommandService must not be exported in {variant}")
+PY
+  }
+
+  check_merged_manifest debug
+  check_merged_manifest release
 fi
 
 step "Debug APK SHA-256"
