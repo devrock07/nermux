@@ -48,6 +48,67 @@
                     android:scrollbarThumbVertical="@drawable/terminal_scroll_shape"
                     android:scrollbars="vertical"
                     tools:ignore="UnusedAttribute" />
+
+                <FrameLayout
+                    android:id="@+id/nermux_boot_overlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/nermux_boot_overlay_background"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:importantForAccessibility="no"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:id="@+id/nermux_boot_panel"
+                        android:layout_width="252dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@drawable/nermux_boot_panel_background"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:paddingStart="18dp"
+                        android:paddingTop="18dp"
+                        android:paddingEnd="18dp"
+                        android:paddingBottom="16dp">
+
+                        <ImageView
+                            android:id="@+id/nermux_boot_wordmark"
+                            android:layout_width="196dp"
+                            android:layout_height="44dp"
+                            android:adjustViewBounds="true"
+                            android:contentDescription="@null"
+                            android:importantForAccessibility="no"
+                            android:scaleType="fitCenter"
+                            android:src="@drawable/nermux_wordmark" />
+
+                        <com.google.android.material.textview.MaterialTextView
+                            android:id="@+id/nermux_boot_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:text="@string/nermux_boot_status"
+                            android:textColor="@color/nermux_text_secondary"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="3dp"
+                            android:layout_marginTop="13dp"
+                            android:background="@drawable/nermux_boot_progress_track">
+
+                            <View
+                                android:id="@+id/nermux_boot_progress"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:background="@drawable/nermux_boot_progress_fill" />
+                        </FrameLayout>
+                    </LinearLayout>
+                </FrameLayout>
+
             </FrameLayout>
 
             <LinearLayout

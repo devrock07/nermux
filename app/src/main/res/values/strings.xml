@@ -375,4 +375,6 @@
     <string name="donate_preference_title">Donate to Nermux</string>
     <string name="donate_preference_summary">Support the fork with Litecoin</string>
 
+    <string name="nermux_boot_status">INITIALIZING SHELL</string>
+
 </resources>

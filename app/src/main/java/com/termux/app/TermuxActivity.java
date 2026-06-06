@@ -307,6 +307,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         setTermuxTerminalViewAndClients();
 
         startTerminalEntryMotion();
+        startNermuxBootSequence();
 
         setTerminalToolbarView(savedInstanceState);
 
@@ -666,6 +667,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         attachPressMotion(agentButton);
         agentButton.setOnClickListener(v -> {
             performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
+            playPanelSound();
             refreshAgentProviderStatus();
             refreshAgentWorkspaceStatus();
             DrawerLayout drawer = getDrawer();
@@ -706,6 +708,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (closeButton != null) {
             closeButton.setOnClickListener(v -> {
                 performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
+                playPanelSound();
                 getDrawer().closeDrawer(Gravity.RIGHT);
             });
         }
@@ -767,6 +770,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
     }
 
     private void openAiSettings() {
+        playPanelSound();
         Intent settingsIntent = new Intent(this, SettingsActivity.class);
         settingsIntent.putExtra(SettingsActivity.EXTRA_OPEN_AI_SETTINGS, true);
         ActivityUtils.startActivity(this, settingsIntent);
@@ -848,6 +852,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (!NermuxAiConfig.hasApiKey(this)) {
             setAgentStatus(getString(R.string.nermux_ai_api_key_missing));
             appendAssistantMessage("Open AI Providers at the bottom of this panel. Choose ChatGPT, Gemini, Groq, OpenRouter, or Custom, then tap \"2. API key\" and paste your key.", null);
+            playErrorSound();
             return;
         }
 
@@ -856,6 +861,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (requiresAgentWorkspace(task, prompt) && getAgentWorkspaceDir() == null) {
             setAgentStatus(getString(R.string.error_ai_workspace_missing));
             appendAssistantMessage("Choose a project workspace first. Tap Choose for a shared-storage folder, or Use shell after you cd into the folder you want the agent to edit.", null);
+            playErrorSound();
             return;
         }
 
@@ -881,6 +887,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     List<NermuxAiChatStore.FileAction> files = extractFileActions(answer);
                     setAgentStatus(NermuxAiConfig.getProviderTitle(NermuxAiConfig.getProvider(TermuxActivity.this)) + " answered");
                     appendAssistantMessage(answer, command, files);
+                    playSuccessSound();
                 });
             }
 
@@ -890,6 +897,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     setAgentBusy(false);
                     setAgentStatus("AI request failed");
                     appendAssistantMessage(message, null);
+                    playErrorSound();
                 });
             }
         });
@@ -1136,6 +1144,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         refreshAgentConversationForWorkspace(false);
         setAgentStatus(getString(R.string.msg_ai_workspace_selected) + ": " + getDisplayAgentPath(canonicalWorkspace));
         showToast(getString(R.string.msg_ai_workspace_selected), false);
+        playSuccessSound();
     }
 
     private void refreshAgentConversationForWorkspace(boolean scrollToBottom) {
@@ -1441,11 +1450,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         performUiHaptic(HapticFeedbackConstants.KEYBOARD_TAP);
         if (TextUtils.isEmpty(command)) {
             showToast(getString(R.string.nermux_ai_no_command), false);
+            playErrorSound();
             return;
         }
         if (isDangerousAgentCommand(command)) {
             showToast(getString(R.string.error_ai_command_blocked), true);
             setAgentStatus(getString(R.string.error_ai_command_blocked));
+            playErrorSound();
             return;
         }
 
@@ -1458,6 +1469,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 if (session != null) {
                     session.write(commandToRun + "\n");
                     showToast(getString(R.string.msg_ai_command_sent), false);
+                    playSuccessSound();
                     getDrawer().closeDrawer(Gravity.RIGHT);
                 }
             })
@@ -1503,6 +1515,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         if (clipboardManager != null) {
             clipboardManager.setPrimaryClip(ClipData.newPlainText(getString(R.string.title_ai_agent), text));
             showToast(getString(R.string.msg_ai_answer_copied), false);
+            playSuccessSound();
         }
     }
 
@@ -1561,10 +1574,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             writeAiFile(file);
             showToast(getString(R.string.msg_ai_file_applied) + ": " + file.path, false);
             setAgentStatus(getString(R.string.msg_ai_file_applied) + ": " + file.path);
+            playSuccessSound();
         } catch (Exception e) {
             String message = e.getMessage() == null ? file.path : e.getMessage();
             showToast(getString(R.string.error_ai_file_apply_failed, message), true);
             setAgentStatus(getString(R.string.error_ai_file_apply_failed, message));
+            playErrorSound();
         }
     }
 
@@ -1576,10 +1591,12 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             String message = getString(R.string.msg_ai_files_applied, files.size());
             showToast(message, false);
             setAgentStatus(message);
+            playSuccessSound();
         } catch (Exception e) {
             String message = e.getMessage() == null ? "unknown error" : e.getMessage();
             showToast(getString(R.string.error_ai_file_apply_failed, message), true);
             setAgentStatus(getString(R.string.error_ai_file_apply_failed, message));
+            playErrorSound();
         }
     }
 
@@ -2045,6 +2062,60 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             .start();
     }
 
+    private void startNermuxBootSequence() {
+        if (mIsActivityRecreated) return;
+
+        View overlay = findViewById(R.id.nermux_boot_overlay);
+        View panel = findViewById(R.id.nermux_boot_panel);
+        View wordmark = findViewById(R.id.nermux_boot_wordmark);
+        View progress = findViewById(R.id.nermux_boot_progress);
+        if (overlay == null || panel == null || wordmark == null || progress == null) return;
+
+        overlay.setVisibility(View.VISIBLE);
+        overlay.setAlpha(0f);
+        panel.setAlpha(0f);
+        panel.setTranslationY(dpToPx(10));
+        wordmark.setScaleX(0.94f);
+        wordmark.setScaleY(0.94f);
+        progress.setPivotX(0f);
+        progress.setScaleX(0f);
+
+        overlay.postDelayed(() -> NermuxSoundEffects.get(this).boot(), 90);
+        overlay.animate()
+            .alpha(1f)
+            .setDuration(UI_MOTION_SHORT_MS)
+            .setInterpolator(UI_MOTION_INTERPOLATOR)
+            .start();
+        panel.animate()
+            .alpha(1f)
+            .translationY(0f)
+            .setDuration(UI_MOTION_MEDIUM_MS)
+            .setInterpolator(UI_MOTION_INTERPOLATOR)
+            .start();
+        wordmark.animate()
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(460)
+            .setInterpolator(UI_MOTION_INTERPOLATOR)
+            .start();
+        progress.animate()
+            .scaleX(1f)
+            .setStartDelay(120)
+            .setDuration(860)
+            .setInterpolator(UI_MOTION_INTERPOLATOR)
+            .withEndAction(() -> overlay.animate()
+                .alpha(0f)
+                .setStartDelay(170)
+                .setDuration(340)
+                .setInterpolator(UI_MOTION_INTERPOLATOR)
+                .withEndAction(() -> {
+                    overlay.setVisibility(View.GONE);
+                    overlay.setAlpha(1f);
+                })
+                .start())
+            .start();
+    }
+
     private void setDrawerMotion() {
         DrawerLayout drawerLayout = getDrawer();
         View leftDrawer = findViewById(R.id.left_drawer);
@@ -2078,6 +2149,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 if (drawerView == leftDrawer || drawerView == agentDrawer) {
                     drawerView.setAlpha(1f);
                     drawerView.setTranslationX(0f);
+                    playPanelSound();
                 }
             }
 
@@ -2162,6 +2234,17 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         return dp * getResources().getDisplayMetrics().density;
     }
 
+    private void playPanelSound() {
+        NermuxSoundEffects.get(this).panel();
+    }
+
+    private void playSuccessSound() {
+        NermuxSoundEffects.get(this).success();
+    }
+
+    private void playErrorSound() {
+        NermuxSoundEffects.get(this).error();
+    }
 
 
 
@@ -2198,6 +2281,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         View targetView = mTerminalView != null ? mTerminalView : mTermuxActivityRootView;
         if (targetView == null) targetView = getWindow().getDecorView();
         targetView.performHapticFeedback(feedbackConstant);
+        if (feedbackConstant == HapticFeedbackConstants.KEYBOARD_TAP) {
+            NermuxSoundEffects.get(this).tap();
+        } else if (feedbackConstant == HapticFeedbackConstants.LONG_PRESS) {
+            NermuxSoundEffects.get(this).scan();
+        }
     }
 
 
