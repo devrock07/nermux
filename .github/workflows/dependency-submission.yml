@@ -20,7 +20,7 @@ jobs:
         distribution: 'temurin'
         java-version: 17
     - name: Generate and submit dependency graph
-      uses: gradle/actions/dependency-submission@v6
+      uses: gradle/actions/dependency-submission@v6.2.0
       # Private/forked repos can have GitHub Dependency Graph disabled.
       # In that case the Gradle graph generation succeeds, but GitHub rejects
       # the snapshot upload. Keep the workflow green until repo security

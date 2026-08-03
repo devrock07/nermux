@@ -26,7 +26,7 @@ jobs:
           java-version: "17"
 
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v6
+        uses: gradle/actions/wrapper-validation@v6.2.0
 
       - name: Run Nermux release/security check
         run: bash scripts/nermux-release-check.sh
